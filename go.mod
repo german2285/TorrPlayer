@@ -1,4 +1,4 @@
-module torrplayer-merged
+module github.com/german2285/TorrPlayer
 
 go 1.24.0
 

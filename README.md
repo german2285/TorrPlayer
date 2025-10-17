@@ -1,299 +1,194 @@
-# TorrPlayer Merged
+# TorrPlayer
 
-Полнофункциональное десктопное приложение для потокового просмотра торрентов с красивым GUI интерфейсом в стиле стриминговых сервисов.
+Desktop application for streaming torrents with integrated MPV player.
 
-## ✨ Возможности
+## What it does
 
-### 🎬 Торрент Streaming
-- ✅ Загрузка торрентов из magnet-ссылок, .torrent файлов или хеша
-- ✅ Потоковое воспроизведение без полной загрузки
-- ✅ Кэширование в оперативной памяти (RAM)
-- ✅ Статистика в реальном времени (скорость, пиры, кэш)
-- ✅ Просмотр файлов внутри торрента
-- ✅ Встроенный MPV плеер
+TorrPlayer allows you to watch video content from torrents without waiting for the full download. The application loads torrent metadata, caches chunks in RAM, and streams video directly to the built-in MPV player.
 
-### 🎨 Графический интерфейс
-- ✅ Красивый темный UI в стиле Amazon Prime Video
-- ✅ Vue.js 3 frontend с анимациями
-- ✅ Адаптивный дизайн
-- ✅ Карточки торрентов с информацией
-- ✅ Страница настроек
+## Requirements
 
-### ⚙️ Настройки
-- ✅ Размер кэша
-- ✅ Лимиты скорости (загрузка/отдача)
-- ✅ Лимит соединений
-- ✅ Режим ретрекеров
-- ✅ Предзагрузка кэша
+### For building:
+- Go 1.23 or newer
+- Node.js 16 or newer
+- Wails CLI
+- MinGW-w64 (for Windows builds with CGO)
 
-### 💾 База данных
-- ✅ Хранение торрентов и настроек
-- ✅ История просмотров
-- ✅ BoltDB + JSON
+### For running:
+- Windows 10/11 (64-bit)
+- libmpv-2.dll (must be placed next to the executable)
 
-## 📋 Требования
+## Installation
 
-### Для сборки:
+Install dependencies:
 
-- **Go 1.23+** - [Скачать](https://golang.org/dl/)
-- **Node.js 16+** - [Скачать](https://nodejs.org/)
-- **Wails CLI** - [Установка](https://wails.io/docs/gettingstarted/installation)
-- **MinGW-w64** (для компиляции CGO на Windows) - [Скачать](https://www.mingw-w64.org/)
-
-### Для запуска:
-
-- **Windows 10/11 (amd64)**
-- **libmpv-2.dll** - [Скачать](https://sourceforge.net/projects/mpv-player-windows/files/libmpv/)
-  - Положите `libmpv-2.dll` в папку с `torrplayer-merged.exe`
-
-## 🔧 Установка зависимостей
-
-### 1. Установите Go
 ```bash
-# Скачайте с https://golang.org/dl/
-# Убедитесь что Go в PATH
-go version
-```
-
-### 2. Установите Node.js
-```bash
-# Скачайте с https://nodejs.org/
-node --version
-npm --version
-```
-
-### 3. Установите Wails CLI
-```bash
+# Install Wails CLI
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+# Install MinGW-w64 on Linux for cross-compilation
+sudo apt-get install mingw-w64  # Ubuntu/Debian
 ```
 
-### 4. Установите MinGW-w64 (для Windows)
-```bash
-# Скачайте с https://www.mingw-w64.org/
-# Добавьте в PATH: C:\mingw64\bin
-```
+## Building
 
-Для кросс-компиляции на Linux:
-```bash
-# Ubuntu/Debian
-sudo apt-get install mingw-w64
-
-# Arch Linux
-sudo pacman -S mingw-w64-gcc
-
-# Fedora
-sudo dnf install mingw64-gcc
-```
-
-## 🛠️ Сборка
-
-### На Windows:
-
+On Windows:
 ```batch
 build.bat
 ```
 
-### На Linux (кросс-компиляция для Windows):
-
+On Linux (cross-compile for Windows):
 ```bash
 bash build.sh
 ```
 
-Готовое приложение будет в `build/bin/torrplayer-merged.exe`
+The compiled application will be in `build/bin/torrplayer-merged.exe`
 
-**ВАЖНО:** После сборки скопируйте `libmpv-2.dll` в папку `build/bin/`
+After building, copy `libmpv-2.dll` to the `build/bin/` directory.
 
-## 🚀 Использование
+## Usage
 
-### Запуск приложения:
+### Starting the application
 
-1. Запустите `torrplayer-merged.exe`
-2. Убедитесь что `libmpv-2.dll` находится в той же папке
+1. Run `torrplayer-merged.exe`
+2. Make sure `libmpv-2.dll` is in the same directory
 
-### Добавление торрента:
+### Adding a torrent
 
-1. Нажмите кнопку "Add Torrent" в интерфейсе
-2. Введите:
-   - Magnet-ссылку: `magnet:?xt=urn:btih:HASH...`
-   - Путь к .torrent файлу: `C:\Downloads\movie.torrent`
-   - Хеш торрента (40 символов)
-3. Дождитесь загрузки информации о торренте
+1. Click "Add Torrent" button
+2. Enter one of the following:
+   - Magnet link: `magnet:?xt=urn:btih:HASH...`
+   - Path to .torrent file: `C:\Downloads\movie.torrent`
+   - Torrent hash (40 characters)
+3. Wait for torrent metadata to load
 
-### Просмотр файлов:
+### Playing files
 
-1. Кликните на карточку торрента
-2. Выберите файл из списка
-3. Нажмите "Play"
-4. Приложение начнёт кэширование и запустит MPV плеер
+1. Click on a torrent card
+2. Select a file from the list
+3. Click "Play"
+4. The application will start caching and launch MPV player
 
-### Настройки:
+### Settings
 
-1. Откройте страницу настроек (иконка шестерёнки)
-2. Измените параметры:
-   - **Cache Size** - размер кэша в RAM (64 MB - 2 GB)
-   - **Connections Limit** - макс. соединений (10-100)
-   - **Download Rate** - лимит скорости загрузки (KB/s, 0 = без лимита)
-   - **Upload Rate** - лимит скорости отдачи (KB/s, 0 = без лимита)
-   - **Preload Cache** - предзагрузка кэша (0-100%)
-   - **Retrackers Mode**:
-     - 0 = не добавлять
-     - 1 = добавить ретрекеры (по умолчанию)
-     - 2 = удалить ретрекеры
-     - 3 = заменить ретрекеры
-3. Нажмите "Save Settings"
+Open settings page to configure:
 
-## 📁 Структура проекта
+- Cache Size: RAM cache size (64 MB - 2 GB)
+- Connections Limit: Maximum peer connections (10-100)
+- Download Rate: Download speed limit in KB/s (0 = unlimited)
+- Upload Rate: Upload speed limit in KB/s (0 = unlimited)
+- Preload Cache: Cache preload percentage (0-100%)
+- Retrackers Mode:
+  - 0 = do not add
+  - 1 = add retrackers (default)
+  - 2 = remove retrackers
+  - 3 = replace retrackers
+
+## MPV player controls
+
+During playback:
+- Space: pause/play
+- Left/Right arrows: seek 5 seconds
+- Up/Down arrows: volume control
+- F: fullscreen mode
+- M: mute audio
+- S: take screenshot
+- Q: quit
+
+## How it works
+
+The application uses a BitTorrent client to download torrent pieces. Instead of writing to disk, pieces are cached in RAM. When you play a file, a local HTTP server streams the cached data to the MPV player. The player can start immediately while the torrent continues downloading in the background.
+
+Database stores torrent metadata, user settings, and viewing history using BoltDB and JSON files.
+
+## Project structure
 
 ```
-torrplayer-merged/
-├── main.go              # Точка входа Wails приложения
-├── app.go               # Backend логика (торренты, настройки)
-├── player.go            # MPV интеграция (Windows)
-├── player_stub.go       # MPV заглушка (не-Windows)
-├── go.mod               # Go зависимости
-├── wails.json           # Конфигурация Wails
-├── build.bat            # Скрипт сборки для Windows
-├── build.sh             # Скрипт сборки для Linux
-├── mpv/
-│   └── client.h         # Заголовочный файл libmpv
-├── server/              # Модули из TorrServer
-│   ├── torr/            # BitTorrent клиент
-│   ├── settings/        # Настройки и БД
-│   ├── log/             # Логирование
-│   ├── utils/           # Утилиты
-│   ├── mimetype/        # MIME типы
-│   └── ffprobe/         # Анализ медиа
-├── frontend/            # Vue.js интерфейс
-│   ├── dist/            # Собранный frontend
-│   ├── index.html       # HTML шаблон
-│   └── package.json     # NPM зависимости
-└── build/
-    └── windows/
-        └── icon.ico     # Иконка приложения
+TorrPlayer/
+├── cmd/
+│   └── torrplayer/       - Application entry point
+│       ├── main.go       - Main function
+│       └── wails.json    - Wails configuration
+├── internal/
+│   ├── app/              - Application logic
+│   │   ├── app.go        - Core app structure
+│   │   ├── types.go      - Type definitions
+│   │   ├── events.go     - Event handling
+│   │   ├── torrent_handler.go   - Torrent operations
+│   │   ├── settings_handler.go  - Settings management
+│   │   ├── stats_handler.go     - Statistics
+│   │   └── stream_server.go     - HTTP streaming
+│   └── player/           - MPV player integration
+│       ├── player.go     - MPV implementation (Windows)
+│       └── player_stub.go - MPV stub (non-Windows)
+├── pkg/
+│   └── server/           - TorrServer modules
+│       ├── torr/         - BitTorrent client
+│       ├── settings/     - Settings and database
+│       ├── log/          - Logging
+│       ├── utils/        - Utilities
+│       ├── mimetype/     - MIME type detection
+│       └── ffprobe/      - Media analysis
+├── frontend/             - Vue.js interface
+│   ├── src/
+│   ├── index.html
+│   └── package.json
+├── third_party/          - External dependencies
+│   ├── mpv/
+│   │   └── client.h      - libmpv header
+│   ├── libmpv-2.a        - MPV static library
+│   └── libmpv-2.dll      - MPV dynamic library
+├── scripts/              - Build scripts
+│   ├── build.bat         - Windows build
+│   ├── build.sh          - Linux cross-compile
+│   └── build-dev.sh      - Development build
+├── docs/                 - Documentation
+├── build/                - Build output
+│   └── windows/
+│       └── icon.ico
+└── go.mod                - Go dependencies
 ```
 
-## 🎮 Управление MPV плеером
+## Architecture
 
-Во время воспроизведения:
-- `Пробел` - пауза/воспроизведение
-- `←` / `→` - перемотка на 5 секунд
-- `↑` / `↓` - громкость
-- `F` - полноэкранный режим
-- `M` - отключить звук
-- `S` - скриншот
-- `Q` или закрыть окно - выход
+- Frontend: Vue.js 3 with Vite
+- Backend: Go with Wails v2 framework
+- BitTorrent: anacrolix/torrent library
+- Cache: In-memory with automatic cleanup
+- Streaming: Local HTTP server
+- Player: MPV via CGO and libmpv-2.dll
+- Database: BoltDB and JSON
 
-## 🔍 Backend API (Go ↔ Vue.js)
+## Troubleshooting
 
-Доступные методы:
+### MPV not starting
 
-### Торренты:
-- `AddTorrent(input string) (*Torrent, error)` - добавить торрент
-- `GetTorrents() []Torrent` - список торрентов
-- `GetTorrentFiles(hash string) ([]TorrentFile, error)` - файлы торрента
-- `GetTorrentStats(hash string) (*TorrentStats, error)` - статистика торрента
-- `PlayTorrentFile(hash string, fileIndex int) error` - воспроизвести файл
-- `RemoveTorrent(hash string) error` - удалить торрент
+1. Check that libmpv-2.dll is in the same directory as the executable
+2. Verify DLL is 64-bit version
+3. Install Visual C++ Redistributable
+4. Check logs in application DevTools (F12)
 
-### Настройки:
-- `GetSettings() *Settings` - получить настройки
-- `SetSettings(s *Settings) error` - сохранить настройки
+### Build errors
 
-## 🐛 Отладка
+**gcc not found**
+- Install MinGW-w64 and add to PATH
 
-### Проблемы с libmpv-2.dll:
+**wails command not found**
+- Install Wails CLI: `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
 
-Если MPV не запускается:
+**mpv/client.h not found**
+- Ensure mpv/client.h exists in project directory
 
-1. Убедитесь что `libmpv-2.dll` в той же папке с `.exe`
-2. Проверьте версию DLL (нужна 64-битная)
-3. Установите [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-4. Проверьте логи в DevTools (F12 в приложении)
+**npm not found**
+- Install Node.js and add to PATH
 
-### Проблемы со сборкой:
+## License
 
-**Error: `gcc not found`**
-- Установите MinGW-w64 и добавьте в PATH
+Based on TorrServer (GPL-3.0) and Wails framework (MIT).
 
-**Error: `wails: command not found`**
-- Установите Wails CLI: `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
+## Links
 
-**Error: `mpv/client.h: No such file`**
-- Убедитесь что файл `mpv/client.h` существует в проекте
-
-**Error: `npm not found`**
-- Установите Node.js и добавьте в PATH
-
-## 📊 Технические детали
-
-### Архитектура:
-
-- **Frontend:** Vue.js 3 + Vite
-- **Backend:** Go + Wails v2
-- **BitTorrent:** anacrolix/torrent (форк от tsynik)
-- **Кэш:** RAM с автоматической очисткой
-- **Streaming:** Локальный HTTP сервер
-- **MPV:** Интеграция через CGO и libmpv-2.dll
-- **База данных:** BoltDB + JSON файлы
-
-### Отличия от TorrServer:
-
-**Убрано:**
-- ❌ Веб-интерфейс (заменён на десктопный GUI)
-- ❌ REST API (заменён на прямые вызовы функций)
-- ❌ DLNA сервер
-- ❌ Telegram бот
-
-**Оставлено:**
-- ✅ Торрент-клиент
-- ✅ Кэш в RAM
-- ✅ Стриминг
-- ✅ Статистика
-- ✅ База данных
-- ✅ Настройки
-
-**Добавлено:**
-- ✅ Красивый GUI на Vue.js
-- ✅ Wails десктопное приложение
-- ✅ Улучшенная MPV интеграция
-
-## 📝 Лицензия
-
-Основано на:
-- [TorrServer](https://github.com/YouROK/TorrServer) - GPL-3.0
-- [Wails](https://wails.io/) - MIT
-
-## 👥 Авторы
-
-- **TorrServer:** [YouROK](https://github.com/YouROK)
-- **TorrPlayer Merged:** Объединённая версия с GUI
-
-## 🔗 Ссылки
-
-- [TorrServer (оригинал)](https://github.com/YouROK/TorrServer)
-- [Wails Framework](https://wails.io/)
-- [MPV Player](https://mpv.io/)
-- [libmpv для Windows](https://sourceforge.net/projects/mpv-player-windows/files/libmpv/)
-- [anacrolix/torrent](https://github.com/anacrolix/torrent)
-- [Vue.js 3](https://vuejs.org/)
-
-## 🎯 Roadmap
-
-- [ ] Поиск торрентов
-- [ ] Интеграция с кинопоисками (TMDB, IMDB)
-- [ ] Автоматическая загрузка постеров
-- [ ] Субтитры (автопоиск и загрузка)
-- [ ] Плейлисты
-- [ ] Трей-иконка
-- [ ] Автозапуск с системой
-- [ ] Горячие клавиши
-- [ ] Темы оформления
-- [ ] Экспорт/импорт настроек
-
-## 💬 Поддержка
-
-Если у вас возникли проблемы или вопросы, создайте Issue в репозитории.
-
----
-
-**Приятного просмотра! 🎬🍿**
+- TorrServer: https://github.com/YouROK/TorrServer
+- Wails: https://wails.io/
+- MPV: https://mpv.io/
+- libmpv for Windows: https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
