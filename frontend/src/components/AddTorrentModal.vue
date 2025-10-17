@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AddTorrent } from '../../wailsjs/go/main/App'
+import { AddTorrent } from '../../wailsjs/go/app/App'
 
 const input = ref('')
 const loading = ref(false)

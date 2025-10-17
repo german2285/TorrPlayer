@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { Torrent, TorrentFile } from '../types'
-import { GetTorrentFiles, PlayTorrentFile } from '../../wailsjs/go/main/App'
+import { GetTorrentFiles, PlayTorrentFile } from '../../wailsjs/go/app/App'
 
 const props = defineProps<{
   torrent: Torrent
