@@ -32,6 +32,8 @@ sudo apt-get install mingw-w64  # Ubuntu/Debian
 
 ## Building
 
+### Quick Build
+
 On Windows:
 ```batch
 build.bat
@@ -39,12 +41,26 @@ build.bat
 
 On Linux (cross-compile for Windows):
 ```bash
-bash build.sh
+bash scripts/build.sh
 ```
 
 The compiled application will be in `build/bin/torrplayer-merged.exe`
 
 After building, copy `libmpv-2.dll` to the `build/bin/` directory.
+
+### Production Release
+
+Create a versioned release and publish to GitHub:
+
+```bash
+# Build and create GitHub release
+bash scripts/build.sh -v v1.0.0 -r -n "Release notes"
+
+# Development build (pre-release)
+bash scripts/build-dev.sh -v v1.0.0-dev -r
+```
+
+**See [BUILD_RELEASE.md](docs/BUILD_RELEASE.md) for detailed build and release instructions.**
 
 ## Usage
 
