@@ -1,0 +1,433 @@
+/**
+ * Material Design 3 Expressive Theme for TorrPlayer
+ * Orange Color Scheme with Expressive enhancements
+ * Based on Material Components Android M3 Expressive implementation
+ */
+
+:root {
+  /* Orange Primary Palette */
+  --md-ref-palette-primary0: #000000;
+  --md-ref-palette-primary10: #2d1600;
+  --md-ref-palette-primary20: #4a2800;
+  --md-ref-palette-primary25: #592f00;
+  --md-ref-palette-primary30: #683700;
+  --md-ref-palette-primary35: #774000;
+  --md-ref-palette-primary40: #874900;
+  --md-ref-palette-primary50: #a85e00;
+  --md-ref-palette-primary60: #ca7500;
+  --md-ref-palette-primary70: #ec8d00;
+  --md-ref-palette-primary80: #ffb86b;
+  --md-ref-palette-primary90: #ffddb5;
+  --md-ref-palette-primary95: #ffeedb;
+  --md-ref-palette-primary98: #fff8f3;
+  --md-ref-palette-primary99: #fffbff;
+  --md-ref-palette-primary100: #ffffff;
+
+  /* Secondary Palette */
+  --md-ref-palette-secondary10: #251a00;
+  --md-ref-palette-secondary20: #3f2e00;
+  --md-ref-palette-secondary30: #5c4200;
+  --md-ref-palette-secondary40: #7a5900;
+  --md-ref-palette-secondary50: #997100;
+  --md-ref-palette-secondary60: #b98b00;
+  --md-ref-palette-secondary70: #d9a600;
+  --md-ref-palette-secondary80: #fac200;
+  --md-ref-palette-secondary90: #ffe17e;
+  --md-ref-palette-secondary95: #fff0c2;
+  --md-ref-palette-secondary99: #fffbff;
+
+  /* Neutral Palette */
+  --md-ref-palette-neutral0: #000000;
+  --md-ref-palette-neutral10: #1f1b16;
+  --md-ref-palette-neutral20: #34302a;
+  --md-ref-palette-neutral25: #3f3b35;
+  --md-ref-palette-neutral30: #4b4640;
+  --md-ref-palette-neutral35: #57524b;
+  --md-ref-palette-neutral40: #635d57;
+  --md-ref-palette-neutral50: #7c766f;
+  --md-ref-palette-neutral60: #968f88;
+  --md-ref-palette-neutral70: #b1a9a2;
+  --md-ref-palette-neutral80: #cdc5bd;
+  --md-ref-palette-neutral90: #e9e1d8;
+  --md-ref-palette-neutral95: #f8efe6;
+  --md-ref-palette-neutral98: #fffbff;
+  --md-ref-palette-neutral99: #fffbff;
+  --md-ref-palette-neutral100: #ffffff;
+
+  /* Error Palette */
+  --md-ref-palette-error10: #410e0b;
+  --md-ref-palette-error20: #601410;
+  --md-ref-palette-error30: #8c1d18;
+  --md-ref-palette-error40: #b3261e;
+  --md-ref-palette-error50: #dc362e;
+  --md-ref-palette-error60: #e46962;
+  --md-ref-palette-error70: #ec928e;
+  --md-ref-palette-error80: #f2b8b5;
+  --md-ref-palette-error90: #f9dedc;
+  --md-ref-palette-error95: #fceeee;
+  --md-ref-palette-error99: #fffbf9;
+}
+
+/* Dark Theme Color System */
+:root {
+  color-scheme: dark;
+
+  /* Surface Colors */
+  --md-sys-color-background: #1f1b16;
+  --md-sys-color-on-background: #e9e1d8;
+  --md-sys-color-surface: #1f1b16;
+  --md-sys-color-surface-dim: #1f1b16;
+  --md-sys-color-surface-bright: #46423c;
+  --md-sys-color-surface-container-lowest: #191511;
+  --md-sys-color-surface-container-low: #28241e;
+  --md-sys-color-surface-container: #2c2822;
+  --md-sys-color-surface-container-high: #36322c;
+  --md-sys-color-surface-container-highest: #413d37;
+  --md-sys-color-on-surface: #e9e1d8;
+  --md-sys-color-on-surface-variant: #cdc5bd;
+  --md-sys-color-outline: #968f88;
+  --md-sys-color-outline-variant: #4b4640;
+
+  /* Primary Colors */
+  --md-sys-color-primary: #ffb86b;
+  --md-sys-color-on-primary: #4a2800;
+  --md-sys-color-primary-container: #683700;
+  --md-sys-color-on-primary-container: #ffddb5;
+  --md-sys-color-inverse-primary: #874900;
+
+  /* Secondary Colors */
+  --md-sys-color-secondary: #ffe17e;
+  --md-sys-color-on-secondary: #3f2e00;
+  --md-sys-color-secondary-container: #5c4200;
+  --md-sys-color-on-secondary-container: #fff0c2;
+
+  /* Tertiary Colors */
+  --md-sys-color-tertiary: #a8d08d;
+  --md-sys-color-on-tertiary: #163807;
+  --md-sys-color-tertiary-container: #2d4f1c;
+  --md-sys-color-on-tertiary-container: #c3eca7;
+
+  /* Error Colors */
+  --md-sys-color-error: #f2b8b5;
+  --md-sys-color-on-error: #601410;
+  --md-sys-color-error-container: #8c1d18;
+  --md-sys-color-on-error-container: #f9dedc;
+
+  /* Shadow & Scrim */
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+
+  /* Inverse Colors */
+  --md-sys-color-inverse-surface: #e9e1d8;
+  --md-sys-color-inverse-on-surface: #34302a;
+
+  /* Material Design Typography */
+  --md-sys-typescale-display-large-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-display-large-size: 57px;
+  --md-sys-typescale-display-large-weight: 400;
+  --md-sys-typescale-display-large-line-height: 64px;
+
+  --md-sys-typescale-display-medium-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-display-medium-size: 45px;
+  --md-sys-typescale-display-medium-weight: 400;
+  --md-sys-typescale-display-medium-line-height: 52px;
+
+  --md-sys-typescale-headline-large-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-headline-large-size: 32px;
+  --md-sys-typescale-headline-large-weight: 400;
+  --md-sys-typescale-headline-large-line-height: 40px;
+
+  --md-sys-typescale-headline-medium-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-headline-medium-size: 28px;
+  --md-sys-typescale-headline-medium-weight: 400;
+  --md-sys-typescale-headline-medium-line-height: 36px;
+
+  --md-sys-typescale-title-large-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-title-large-size: 22px;
+  --md-sys-typescale-title-large-weight: 500;
+  --md-sys-typescale-title-large-line-height: 28px;
+
+  --md-sys-typescale-title-medium-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-title-medium-size: 16px;
+  --md-sys-typescale-title-medium-weight: 500;
+  --md-sys-typescale-title-medium-line-height: 24px;
+
+  --md-sys-typescale-body-large-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-body-large-weight: 400;
+  --md-sys-typescale-body-large-line-height: 24px;
+
+  --md-sys-typescale-body-medium-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-body-medium-size: 14px;
+  --md-sys-typescale-body-medium-weight: 400;
+  --md-sys-typescale-body-medium-line-height: 20px;
+
+  --md-sys-typescale-label-large-font: 'Noto Sans Mono', 'Google Sans', Roboto, system-ui;
+  --md-sys-typescale-label-large-size: 14px;
+  --md-sys-typescale-label-large-weight: 500;
+  --md-sys-typescale-label-large-line-height: 20px;
+
+  /* Material Design Shapes - M3 Expressive (увеличенные значения) */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 6px;       /* M3: 4px, Expressive: +50% */
+  --md-sys-shape-corner-small: 12px;            /* M3: 8px, Expressive: +50% */
+  --md-sys-shape-corner-medium: 16px;           /* M3: 12px, Expressive: +33% */
+  --md-sys-shape-corner-large: 24px;            /* M3: 16px, Expressive: +50% */
+  --md-sys-shape-corner-large-increased: 28px;  /* Новый токен Expressive */
+  --md-sys-shape-corner-extra-large: 48px;      /* M3: 28px, Expressive: +71% - KEY DIFFERENCE */
+  --md-sys-shape-corner-extra-large-increased: 56px; /* Новый токен Expressive */
+  --md-sys-shape-corner-full: 9999px;
+
+  /* Elevation Levels - M3 Expressive (более драматичные тени) */
+  --md-sys-elevation-level0: 0px 0px 0px 0px rgba(0, 0, 0, 0);
+  --md-sys-elevation-level1: 0px 2px 4px 0px rgba(0, 0, 0, 0.35), 0px 1px 4px 1px rgba(0, 0, 0, 0.2);
+  --md-sys-elevation-level2: 0px 4px 8px 0px rgba(0, 0, 0, 0.4), 0px 2px 8px 2px rgba(0, 0, 0, 0.25);
+  --md-sys-elevation-level3: 0px 8px 16px 0px rgba(0, 0, 0, 0.45), 0px 4px 12px 3px rgba(0, 0, 0, 0.3);
+  --md-sys-elevation-level4: 0px 12px 24px 0px rgba(0, 0, 0, 0.5), 0px 6px 16px 4px rgba(0, 0, 0, 0.35);
+  --md-sys-elevation-level5: 0px 16px 32px 0px rgba(0, 0, 0, 0.55), 0px 8px 20px 6px rgba(0, 0, 0, 0.4);
+
+  /* State Layers - M3 Expressive (более выраженные) */
+  --md-sys-state-hover-opacity: 0.12;      /* M3: 0.08, Expressive: +50% */
+  --md-sys-state-focus-opacity: 0.16;      /* M3: 0.12, Expressive: +33% */
+  --md-sys-state-pressed-opacity: 0.16;    /* M3: 0.12, Expressive: +33% */
+  --md-sys-state-dragged-opacity: 0.20;    /* M3: 0.16, Expressive: +25% */
+
+  /* Motion Tokens - M3 Expressive Physics System (Spring-based) */
+  /* Web: Convert springs to curves - May 2025 */
+
+  /* Expressive Spatial Springs (for movement: x, y, rotation, size, corners) */
+  --md-sys-motion-spring-expressive-fast-spatial-duration: 350ms;
+  --md-sys-motion-spring-expressive-fast-spatial: cubic-bezier(0.42, 1.67, 0.21, 0.90);
+
+  --md-sys-motion-spring-expressive-default-spatial-duration: 500ms;
+  --md-sys-motion-spring-expressive-default-spatial: cubic-bezier(0.38, 1.21, 0.22, 1.00);
+
+  --md-sys-motion-spring-expressive-slow-spatial-duration: 650ms;
+  --md-sys-motion-spring-expressive-slow-spatial: cubic-bezier(0.39, 1.29, 0.35, 0.98);
+
+  /* Expressive Effects Springs (for color, opacity - no overshoot) */
+  --md-sys-motion-spring-expressive-fast-effects-duration: 150ms;
+  --md-sys-motion-spring-expressive-fast-effects: cubic-bezier(0.31, 0.94, 0.34, 1.00);
+
+  --md-sys-motion-spring-expressive-default-effects-duration: 200ms;
+  --md-sys-motion-spring-expressive-default-effects: cubic-bezier(0.34, 0.80, 0.34, 1.00);
+
+  --md-sys-motion-spring-expressive-slow-effects-duration: 300ms;
+  --md-sys-motion-spring-expressive-slow-effects: cubic-bezier(0.34, 0.88, 0.34, 1.00);
+
+  /* Standard Spatial Springs (minimal bounce) */
+  --md-sys-motion-spring-standard-fast-spatial-duration: 350ms;
+  --md-sys-motion-spring-standard-fast-spatial: cubic-bezier(0.27, 1.06, 0.18, 1.00);
+
+  --md-sys-motion-spring-standard-default-spatial-duration: 500ms;
+  --md-sys-motion-spring-standard-default-spatial: cubic-bezier(0.27, 1.06, 0.18, 1.00);
+
+  --md-sys-motion-spring-standard-slow-spatial-duration: 750ms;
+  --md-sys-motion-spring-standard-slow-spatial: cubic-bezier(0.27, 1.06, 0.18, 1.00);
+
+  /* Standard Effects Springs */
+  --md-sys-motion-spring-standard-fast-effects-duration: 150ms;
+  --md-sys-motion-spring-standard-fast-effects: cubic-bezier(0.31, 0.94, 0.34, 1.00);
+
+  --md-sys-motion-spring-standard-default-effects-duration: 200ms;
+  --md-sys-motion-spring-standard-default-effects: cubic-bezier(0.34, 0.80, 0.34, 1.00);
+
+  --md-sys-motion-spring-standard-slow-effects-duration: 300ms;
+  --md-sys-motion-spring-standard-slow-effects: cubic-bezier(0.34, 0.88, 0.34, 1.00);
+
+  /* Legacy tokens for backward compatibility */
+  --md-sys-motion-duration-short1: 75ms;
+  --md-sys-motion-duration-short2: 150ms;
+  --md-sys-motion-duration-short3: 200ms;
+  --md-sys-motion-duration-short4: 250ms;
+  --md-sys-motion-duration-medium1: 300ms;
+  --md-sys-motion-duration-medium2: 400ms;
+  --md-sys-motion-duration-medium3: 500ms;
+  --md-sys-motion-duration-medium4: 550ms;
+  --md-sys-motion-duration-long1: 600ms;
+  --md-sys-motion-duration-long2: 700ms;
+  --md-sys-motion-duration-long3: 800ms;
+  --md-sys-motion-duration-long4: 900ms;
+
+  /* Legacy easing functions */
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Material Design Elevation Classes */
+.elevation-0 {
+  box-shadow: var(--md-sys-elevation-level0);
+}
+
+.elevation-1 {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.elevation-2 {
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.elevation-3 {
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.elevation-4 {
+  box-shadow: var(--md-sys-elevation-level4);
+}
+
+.elevation-5 {
+  box-shadow: var(--md-sys-elevation-level5);
+}
+
+/* Material Design Surface Variants */
+.surface {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+.surface-variant {
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.surface-container {
+  background-color: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+}
+
+.surface-container-high {
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.surface-container-highest {
+  background-color: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* Primary Color Variants */
+.primary {
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.primary-container {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* Typography Classes */
+.display-large {
+  font-family: var(--md-sys-typescale-display-large-font);
+  font-size: var(--md-sys-typescale-display-large-size);
+  font-weight: var(--md-sys-typescale-display-large-weight);
+  line-height: var(--md-sys-typescale-display-large-line-height);
+}
+
+.headline-large {
+  font-family: var(--md-sys-typescale-headline-large-font);
+  font-size: var(--md-sys-typescale-headline-large-size);
+  font-weight: var(--md-sys-typescale-headline-large-weight);
+  line-height: var(--md-sys-typescale-headline-large-line-height);
+}
+
+.title-large {
+  font-family: var(--md-sys-typescale-title-large-font);
+  font-size: var(--md-sys-typescale-title-large-size);
+  font-weight: var(--md-sys-typescale-title-large-weight);
+  line-height: var(--md-sys-typescale-title-large-line-height);
+}
+
+.title-medium {
+  font-family: var(--md-sys-typescale-title-medium-font);
+  font-size: var(--md-sys-typescale-title-medium-size);
+  font-weight: var(--md-sys-typescale-title-medium-weight);
+  line-height: var(--md-sys-typescale-title-medium-line-height);
+}
+
+.body-large {
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  font-weight: var(--md-sys-typescale-body-large-weight);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+}
+
+.body-medium {
+  font-family: var(--md-sys-typescale-body-medium-font);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  font-weight: var(--md-sys-typescale-body-medium-weight);
+  line-height: var(--md-sys-typescale-body-medium-line-height);
+}
+
+.label-large {
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: var(--md-sys-typescale-label-large-weight);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+}
+
+/* M3 Expressive Scrollbar Styling */
+/* Применяется глобально для всех scrollable элементов */
+::-webkit-scrollbar {
+  width: 12px;  /* M3 Expressive: увеличен с 8px */
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: var(--md-sys-shape-corner-medium); /* M3 Expressive: 16px */
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--md-sys-color-primary) 0%,
+    var(--md-sys-color-tertiary) 100%
+  ); /* M3 Expressive: gradient вместо solid color */
+  border-radius: var(--md-sys-shape-corner-medium); /* M3 Expressive: 16px */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized); /* Expressive */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    var(--md-sys-color-primary) 0%,
+    var(--md-sys-color-secondary) 100%
+  ); /* M3 Expressive: меняется gradient при hover */
+  border-radius: var(--md-sys-shape-corner-small); /* M3 Expressive: морфинг формы */
+  transform: scaleX(1.2); /* M3 Expressive: расширение */
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-corner-extra-small); /* M3 Expressive: еще более квадратный */
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-sys-color-primary) transparent;
+}
