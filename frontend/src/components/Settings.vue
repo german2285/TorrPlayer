@@ -98,6 +98,89 @@
           </div>
         </div>
 
+        <!-- Торрент -->
+        <div class="settings-section">
+          <h3 class="section-title">Торрент</h3>
+          <div class="settings-list">
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Размер RAM кеша</div>
+                <div class="setting-description">{{ formatCacheSize(cacheSizeMB) }}</div>
+              </div>
+              <input
+                type="range"
+                class="slider"
+                min="64"
+                max="2048"
+                step="64"
+                v-model="cacheSizeMB"
+              >
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Количество соединений</div>
+                <div class="setting-description">{{ torrentSettings.connectionsLimit }} соединений</div>
+              </div>
+              <input
+                type="range"
+                class="slider"
+                min="10"
+                max="100"
+                step="5"
+                v-model="torrentSettings.connectionsLimit"
+              >
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Скорость загрузки</div>
+                <div class="setting-description">{{ formatSpeed(downloadRateMB) }}</div>
+              </div>
+              <input
+                type="range"
+                class="slider"
+                min="0"
+                max="100"
+                step="5"
+                v-model="downloadRateMB"
+              >
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Скорость отдачи</div>
+                <div class="setting-description">{{ formatSpeed(uploadRateMB) }}</div>
+              </div>
+              <input
+                type="range"
+                class="slider"
+                min="0"
+                max="100"
+                step="5"
+                v-model="uploadRateMB"
+              >
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Предзагрузка кеша</div>
+                <div class="setting-description">{{ torrentSettings.preloadCache }}%</div>
+              </div>
+              <input
+                type="range"
+                class="slider"
+                min="0"
+                max="100"
+                step="5"
+                v-model="torrentSettings.preloadCache"
+              >
+            </div>
+
+          </div>
+        </div>
+
         <!-- Интерфейс -->
         <div class="settings-section">
           <h3 class="section-title">Интерфейс</h3>
@@ -156,8 +239,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
+import { GetSettings, SetSettings } from '../../wailsjs/go/app/App'
+import type { app } from '../../wailsjs/go/models'
 
 const emit = defineEmits<{
   (e: 'close'): void
@@ -174,6 +259,16 @@ interface SettingsData {
   animations: boolean
 }
 
+interface TorrentSettings {
+  cacheSize: number        // in bytes
+  cacheSizeStr: string
+  connectionsLimit: number
+  downloadRate: number     // in kb/s, 0 = unlimited
+  uploadRate: number       // in kb/s, 0 = unlimited
+  preloadCache: number     // in percent 0-100
+  retrackersMode: number   // 0-3
+}
+
 const settings: Ref<SettingsData> = ref({
   autoplay: true,
   subtitles: false,
@@ -183,12 +278,79 @@ const settings: Ref<SettingsData> = ref({
   animations: true
 })
 
-const onClose = (): void => {
+const torrentSettings: Ref<TorrentSettings> = ref({
+  cacheSize: 67108864, // 64 MB по умолчанию
+  cacheSizeStr: '64 MB',
+  connectionsLimit: 25,
+  downloadRate: 0,
+  uploadRate: 0,
+  preloadCache: 50,
+  retrackersMode: 1
+})
+
+// Для отображения в UI (конвертация из bytes в MB/GB)
+const cacheSizeMB = ref(64)
+const downloadRateMB = ref(0)
+const uploadRateMB = ref(0)
+
+onMounted(async () => {
+  try {
+    const btSettings = await GetSettings()
+    if (btSettings) {
+      torrentSettings.value.cacheSize = btSettings.cacheSize
+      torrentSettings.value.cacheSizeStr = btSettings.cacheSizeStr
+      torrentSettings.value.connectionsLimit = btSettings.connectionsLimit
+      torrentSettings.value.downloadRate = btSettings.downloadRate
+      torrentSettings.value.uploadRate = btSettings.uploadRate
+      torrentSettings.value.preloadCache = btSettings.preloadCache
+      torrentSettings.value.retrackersMode = btSettings.retrackersMode
+
+      // Конвертируем для UI
+      cacheSizeMB.value = Math.round(btSettings.cacheSize / (1024 * 1024))
+      downloadRateMB.value = Math.round(btSettings.downloadRate / 1024)
+      uploadRateMB.value = Math.round(btSettings.uploadRate / 1024)
+    }
+  } catch (error) {
+    console.error('Failed to load torrent settings:', error)
+  }
+})
+
+const onClose = async (): Promise<void> => {
+  // Сохраняем настройки перед закрытием
+  await saveSettings()
   emit('close')
 }
 
 const selectQuality = (quality: QualityOption): void => {
   settings.value.quality = quality
+}
+
+const saveSettings = async (): Promise<void> => {
+  try {
+    // Конвертируем из UI в bytes/kb
+    torrentSettings.value.cacheSize = cacheSizeMB.value * 1024 * 1024
+    torrentSettings.value.downloadRate = downloadRateMB.value * 1024
+    torrentSettings.value.uploadRate = uploadRateMB.value * 1024
+
+    await SetSettings(torrentSettings.value as any)
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+  }
+}
+
+const formatCacheSize = (mb: number): string => {
+  if (mb >= 1024) {
+    return `${(mb / 1024).toFixed(1)} GB`
+  }
+  return `${mb} MB`
+}
+
+const formatSpeed = (mb: number): string => {
+  if (mb === 0) return 'Безлимит'
+  if (mb >= 1024) {
+    return `${(mb / 1024).toFixed(1)} GB/s`
+  }
+  return `${mb} MB/s`
 }
 </script>
 
