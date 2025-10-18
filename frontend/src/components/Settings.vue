@@ -211,6 +211,55 @@
           </div>
         </div>
 
+        <!-- Цветовая тема -->
+        <div class="settings-section">
+          <h3 class="section-title">Цветовая тема</h3>
+          <div class="settings-list">
+
+            <div class="setting-item-full">
+              <div class="setting-info">
+                <div class="setting-label">Основной цвет приложения</div>
+                <div class="setting-description">Выберите цвет из предустановленных или создайте свой</div>
+              </div>
+            </div>
+
+            <!-- Предустановленные цвета -->
+            <div class="color-presets">
+              <button
+                v-for="preset in colorPresets"
+                :key="preset.color"
+                class="color-preset-btn"
+                :class="{ active: settings.themeColor === preset.color }"
+                :style="{ backgroundColor: preset.color }"
+                @click="selectColorPreset(preset.color)"
+                :title="preset.name"
+              >
+                <svg v-if="settings.themeColor === preset.color" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- RGB Color Picker -->
+            <div class="setting-item-full">
+              <div class="setting-info">
+                <div class="setting-label">Пользовательский цвет</div>
+                <div class="setting-description">Используйте RGB пикер для точной настройки</div>
+              </div>
+              <div class="color-picker-container">
+                <input
+                  type="color"
+                  class="color-picker"
+                  v-model="settings.themeColor"
+                  @input="applyThemeColor(settings.themeColor)"
+                >
+                <span class="color-value">{{ settings.themeColor.toUpperCase() }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- О программе -->
         <div class="settings-section">
           <h3 class="section-title">О программе</h3>
@@ -257,6 +306,7 @@ interface SettingsData {
   quality: QualityOption
   darkTheme: boolean
   animations: boolean
+  themeColor: string
 }
 
 interface TorrentSettings {
@@ -275,8 +325,21 @@ const settings: Ref<SettingsData> = ref({
   volume: 80,
   quality: 'auto',
   darkTheme: true,
-  animations: true
+  animations: true,
+  themeColor: '#6750A4' // M3 default purple
 })
+
+// Предустановленные цветовые схемы M3
+const colorPresets = [
+  { name: 'Фиолетовый (по умолчанию)', color: '#6750A4' },
+  { name: 'Синий', color: '#0061A4' },
+  { name: 'Зеленый', color: '#006D3B' },
+  { name: 'Красный', color: '#BA1A1A' },
+  { name: 'Оранжевый', color: '#A05000' },
+  { name: 'Розовый', color: '#A44A7A' },
+  { name: 'Бирюзовый', color: '#006874' },
+  { name: 'Желтый', color: '#755B00' }
+]
 
 const torrentSettings: Ref<TorrentSettings> = ref({
   cacheSize: 67108864, // 64 MB по умолчанию
@@ -312,6 +375,12 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Failed to load torrent settings:', error)
+  }
+
+  // Загрузить сохраненный цвет темы
+  const savedColor = localStorage.getItem('themeColor')
+  if (savedColor) {
+    applyThemeColor(savedColor)
   }
 })
 
@@ -351,6 +420,19 @@ const formatSpeed = (mb: number): string => {
     return `${(mb / 1024).toFixed(1)} GB/s`
   }
   return `${mb} MB/s`
+}
+
+// Применить цветовую тему
+const applyThemeColor = (color: string): void => {
+  settings.value.themeColor = color
+  document.documentElement.style.setProperty('--md-sys-color-primary', color)
+  // Сохранить в localStorage
+  localStorage.setItem('themeColor', color)
+}
+
+// Выбрать предустановленный цвет
+const selectColorPreset = (color: string): void => {
+  applyThemeColor(color)
 }
 </script>
 
@@ -814,5 +896,97 @@ const formatSpeed = (mb: number): string => {
   100% {
     transform: scale(1);
   }
+}
+
+/* Full Width Setting Item */
+.setting-item-full {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Color Presets Grid */
+.color-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 12px;
+  padding: 0 24px 16px 24px;
+}
+
+.color-preset-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--md-sys-shape-corner-large); /* M3 Expressive: 20px */
+  border: 3px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* M3 Expressive Physics: Fast spatial spring */
+  transition:
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial),
+    border-color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.color-preset-btn:hover {
+  transform: scale(1.1);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.color-preset-btn:active {
+  transform: scale(0.95);
+}
+
+.color-preset-btn.active {
+  border-color: white;
+  box-shadow: var(--md-sys-elevation-level4), 0 0 0 2px var(--md-sys-color-primary);
+  transform: scale(1.05);
+}
+
+/* Color Picker Container */
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px 8px 24px;
+}
+
+.color-picker {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--md-sys-shape-corner-extra-large); /* M3 Expressive: 48px */
+  border: 3px solid var(--md-sys-color-outline);
+  cursor: pointer;
+  /* M3 Expressive Physics: Fast spatial spring */
+  transition:
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial),
+    border-color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.color-picker:hover {
+  transform: scale(1.08);
+  border-color: var(--md-sys-color-primary);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.color-picker:active {
+  transform: scale(0.98);
+}
+
+.color-value {
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  letter-spacing: 0.5px;
+  background: var(--md-sys-color-surface-container-high);
+  padding: 12px 20px;
+  border-radius: var(--md-sys-shape-corner-medium);
+  box-shadow: var(--md-sys-elevation-level1);
 }
 </style>
