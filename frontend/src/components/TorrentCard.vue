@@ -167,32 +167,76 @@ defineEmits<{
   margin-top: auto;
 }
 
+/* === M3 Expressive Button Styles === */
+
 .btn-play,
 .btn-remove {
-  padding: 12px 24px;
+  position: relative;
+  padding: 10px 24px;
   border: none;
-  border-radius: 24px;
-  font-weight: 600;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
 }
 
+.btn-play::before,
+.btn-remove::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+/* M3 Filled Button (Play) */
 .btn-play {
   flex: 1;
   background: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-level2);
 }
 
 .btn-play:hover {
-  transform: scale(1.05);
+  box-shadow: var(--md-sys-elevation-level3);
 }
 
+.btn-play:hover::before {
+  opacity: var(--md-sys-state-hover-opacity);
+}
+
+.btn-play:active {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.btn-play:active::before {
+  opacity: var(--md-sys-state-pressed-opacity);
+}
+
+/* M3 Outlined Button with Error colors (Remove) */
 .btn-remove {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
+  background: transparent;
+  color: var(--md-sys-color-error);
+  border: 1px solid var(--md-sys-color-error);
+  box-shadow: none;
 }
 
 .btn-remove:hover {
-  transform: scale(1.05);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  border-color: transparent;
+}
+
+.btn-remove:hover::before {
+  opacity: var(--md-sys-state-hover-opacity);
+}
+
+.btn-remove:active::before {
+  opacity: var(--md-sys-state-pressed-opacity);
 }
 </style>

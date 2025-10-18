@@ -163,19 +163,49 @@ h2 {
   opacity: 0.7;
 }
 
+/* === M3 Expressive Button Styles === */
+
+/* M3 Filled Button (Play file) */
 .btn-play-file {
+  position: relative;
   padding: 8px 16px;
   background: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
   border: none;
-  border-radius: 20px;
-  font-weight: 600;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  overflow: hidden;
+  box-shadow: var(--md-sys-elevation-level2);
+  transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+  flex-shrink: 0;
+}
+
+.btn-play-file::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
 }
 
 .btn-play-file:hover {
-  transform: scale(1.1);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.btn-play-file:hover::before {
+  opacity: var(--md-sys-state-hover-opacity);
+}
+
+.btn-play-file:active {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.btn-play-file:active::before {
+  opacity: var(--md-sys-state-pressed-opacity);
 }
 
 .modal-actions {
@@ -183,18 +213,37 @@ h2 {
   justify-content: flex-end;
 }
 
+/* M3 Text Button (Close) */
 .btn-close {
-  padding: 12px 24px;
-  background: var(--md-sys-color-surface-container-highest);
-  color: var(--md-sys-color-on-surface);
+  position: relative;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--md-sys-color-primary);
   border: none;
-  border-radius: 24px;
-  font-weight: 600;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  overflow: hidden;
+  transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
 }
 
-.btn-close:hover {
-  transform: scale(1.05);
+.btn-close::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.btn-close:hover::before {
+  opacity: var(--md-sys-state-hover-opacity);
+}
+
+.btn-close:active::before {
+  opacity: var(--md-sys-state-pressed-opacity);
 }
 </style>

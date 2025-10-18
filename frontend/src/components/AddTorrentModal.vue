@@ -286,36 +286,88 @@ textarea:focus {
   justify-content: flex-end;
 }
 
+/* === M3 Expressive Button Styles === */
+
+/* Base button style */
 button {
-  padding: 12px 24px;
+  position: relative;
+  padding: 10px 24px;
   border: none;
-  border-radius: 24px;
-  font-weight: 600;
+  border-radius: var(--md-sys-shape-corner-full); /* M3: полностью скругленные */
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  line-height: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial),
+              transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
 }
 
+/* M3 State Layer (ripple effect simulation) */
+button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+button:hover::before {
+  opacity: var(--md-sys-state-hover-opacity); /* M3: 0.08 */
+}
+
+button:focus::before {
+  opacity: var(--md-sys-state-focus-opacity); /* M3: 0.12 */
+}
+
+button:active::before {
+  opacity: var(--md-sys-state-pressed-opacity); /* M3: 0.12 */
+}
+
+/* M3 Text Button (Отмена) */
 .btn-cancel {
-  background: var(--md-sys-color-surface-container-highest);
-  color: var(--md-sys-color-on-surface);
+  background: transparent;
+  color: var(--md-sys-color-primary);
+  padding: 10px 12px;
 }
 
 .btn-cancel:hover {
-  transform: scale(1.05);
+  box-shadow: none;
 }
 
+.btn-cancel:focus {
+  outline: none;
+}
+
+/* M3 Filled Button (Добавить) */
 .btn-add {
   background: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-level2);
 }
 
 .btn-add:hover:not(:disabled) {
-  transform: scale(1.05);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.btn-add:active:not(:disabled) {
+  box-shadow: var(--md-sys-elevation-level1);
 }
 
 .btn-add:disabled {
-  opacity: 0.5;
+  background: var(--md-sys-color-on-surface);
+  color: var(--md-sys-color-surface);
+  opacity: 0.38;
   cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-add:disabled::before {
+  display: none;
 }
 
 /* Drag & Drop Zone */
@@ -376,21 +428,47 @@ button {
   opacity: 0.8;
 }
 
+/* M3 Filled Tonal Button (Выбрать файл) */
 .btn-browse {
   margin-top: 8px;
-  padding: 10px 20px;
-  background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
+  padding: 10px 24px;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
   border: none;
-  border-radius: 20px;
-  font-weight: 600;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--md-sys-elevation-level2);
+  transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+}
+
+.btn-browse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--md-sys-color-on-secondary-container);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
 }
 
 .btn-browse:hover {
-  transform: scale(1.05);
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.btn-browse:hover::before {
+  opacity: var(--md-sys-state-hover-opacity);
+}
+
+.btn-browse:active {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.btn-browse:active::before {
+  opacity: var(--md-sys-state-pressed-opacity);
 }
 </style>
