@@ -8,6 +8,7 @@ export namespace app {
 	    uploadRate: number;
 	    preloadCache: number;
 	    retrackersMode: number;
+	    themeColor: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -22,6 +23,7 @@ export namespace app {
 	        this.uploadRate = source["uploadRate"];
 	        this.preloadCache = source["preloadCache"];
 	        this.retrackersMode = source["retrackersMode"];
+	        this.themeColor = source["themeColor"];
 	    }
 	}
 	export class Torrent {

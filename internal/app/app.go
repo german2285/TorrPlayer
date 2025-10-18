@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -35,8 +36,22 @@ func (a *App) Startup(ctx context.Context) {
 	runtime.LogInfo(ctx, "TorrPlayer starting...")
 
 	// Initialize settings and logging
-	workDir, _ := os.Getwd()
-	settings.Path = workDir
+	// Use user's home directory for config storage
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		runtime.LogError(ctx, fmt.Sprintf("Failed to get home dir: %v", err))
+		homeDir, _ = os.Getwd() // Fallback to current directory
+	}
+
+	// Create .torrplayer config directory
+	configDir := filepath.Join(homeDir, ".torrplayer")
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		runtime.LogError(ctx, fmt.Sprintf("Failed to create config dir: %v", err))
+		configDir, _ = os.Getwd() // Fallback to current directory
+	}
+
+	settings.Path = configDir
+	runtime.LogInfo(ctx, fmt.Sprintf("Config directory: %s", configDir))
 	settings.InitSets(false, false) // readOnly=false, searchWA=false
 	log.Init("", "")
 
@@ -46,7 +61,7 @@ func (a *App) Startup(ctx context.Context) {
 	// Initialize BitTorrent server
 	runtime.LogInfo(ctx, "Initializing BitTorrent client...")
 	a.btServer = torrserv.NewBTS()
-	err := a.btServer.Connect()
+	err = a.btServer.Connect()
 	if err != nil {
 		runtime.LogError(ctx, fmt.Sprintf("Failed to initialize BT client: %v", err))
 		return

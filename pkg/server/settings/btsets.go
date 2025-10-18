@@ -54,6 +54,9 @@ type BTSets struct {
 
 	// Reader
 	ResponsiveMode bool // enable Responsive reader (don't wait pieceComplete)
+
+	// UI
+	ThemeColor string // Material Design 3 theme color in HEX format
 }
 
 func (v *BTSets) String() string {
@@ -130,6 +133,7 @@ func SetDefaultConfig() {
 	sets.RetrackersMode = 1
 	sets.TorrentDisconnectTimeout = 30
 	sets.ReaderReadAHead = 95 // 95%
+	sets.ThemeColor = "#6750A4" // M3 default purple
 	BTsets = sets
 	if !ReadOnly {
 		buf, err := json.Marshal(BTsets)
@@ -148,6 +152,12 @@ func loadBTSets() {
 		if err == nil {
 			if BTsets.ReaderReadAHead < 5 {
 				BTsets.ReaderReadAHead = 5
+			}
+			// Set default theme color if not set (for existing configs)
+			if BTsets.ThemeColor == "" {
+				BTsets.ThemeColor = "#6750A4" // M3 default purple
+				// Save updated config with theme color
+				SetBTSets(BTsets)
 			}
 			return
 		}

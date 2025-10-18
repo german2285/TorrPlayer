@@ -11,7 +11,9 @@ import (
 func (a *App) GetSettings() *Settings {
 	btsets := settings.BTsets
 	if btsets == nil {
-		return &Settings{}
+		return &Settings{
+			ThemeColor: "#6750A4", // M3 default purple
+		}
 	}
 
 	return &Settings{
@@ -22,6 +24,7 @@ func (a *App) GetSettings() *Settings {
 		UploadRate:       btsets.UploadRateLimit,
 		PreloadCache:     btsets.PreloadCache,
 		RetrackersMode:   btsets.RetrackersMode,
+		ThemeColor:       btsets.ThemeColor,
 	}
 }
 
@@ -40,6 +43,7 @@ func (a *App) SetSettings(s *Settings) error {
 	btsets.UploadRateLimit = s.UploadRate
 	btsets.PreloadCache = s.PreloadCache
 	btsets.RetrackersMode = s.RetrackersMode
+	btsets.ThemeColor = s.ThemeColor
 
 	settings.SetBTSets(btsets)
 

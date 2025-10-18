@@ -98,6 +98,7 @@ import searchIcon from './assets/icons/search.svg'
 import addIcon from './assets/icons/add.svg'
 import settingsIcon from './assets/icons/settings.svg'
 import backgroundMusicUrl from './assets/audio/background-music.mp3'
+import { loadSavedTheme } from './utils/themeUtils'
 
 interface TorrentMetadataLoadedEvent {
   hash: string
@@ -229,6 +230,9 @@ watch(bgVolume, (newVolume) => {
 })
 
 onMounted(async () => {
+  // Load saved theme colors BEFORE rendering UI
+  await loadSavedTheme()
+
   await loadTorrents()
 
   // Listen to metadata loaded events

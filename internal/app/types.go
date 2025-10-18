@@ -55,4 +55,5 @@ type Settings struct {
 	UploadRate       int    `json:"uploadRate"`
 	PreloadCache     int    `json:"preloadCache"`
 	RetrackersMode   int    `json:"retrackersMode"`
+	ThemeColor       string `json:"themeColor"`
 }
