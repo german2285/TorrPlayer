@@ -41,14 +41,20 @@ func (a *App) PlayTorrentFile(hash string, fileIndex int) error {
 	runtime.LogInfo(a.ctx, "Buffering...")
 	a.waitForBuffer(tor, 5*time.Second)
 
-	// Hide window and play
+	// Notify frontend to pause background music and cleanup resources
+	runtime.EventsEmit(a.ctx, "video:playbackStarting")
+	time.Sleep(200 * time.Millisecond) // Give frontend time to cleanup
+
+	// Hide window completely to free WebView2 resources
 	runtime.WindowHide(a.ctx)
 	runtime.LogInfo(a.ctx, "Starting playback...")
 
 	err = player.PlayVideoWithMPV(streamURL)
 
-	// Show window again
+	// Show window and reload it to completely free WebView2 memory
 	runtime.WindowShow(a.ctx)
+	runtime.LogInfo(a.ctx, "Reloading UI to free memory...")
+	runtime.WindowReload(a.ctx) // This completely reloads WebView2 and frees all memory!
 
 	// Stop stream server
 	a.stopStreamServer()

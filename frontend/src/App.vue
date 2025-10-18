@@ -213,6 +213,25 @@ const onMetadataLoaded = (event: TorrentMetadataLoadedEvent) => {
   }
 }
 
+// Handle video playback starting - pause background music and cleanup
+const onVideoPlaybackStarting = () => {
+  console.log('Video playback starting - cleaning up resources')
+
+  // Pause and cleanup background music
+  if (bgAudio.value) {
+    bgAudio.value.pause()
+    bgAudio.value.src = '' // Release audio resource
+  }
+
+  // Stop refresh interval to free resources
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
+  }
+
+  console.log('Resources cleaned up, ready for window reload after playback')
+}
+
 // Auto-refresh torrents every 5 seconds
 let refreshInterval: number | null = null
 
@@ -237,6 +256,9 @@ onMounted(async () => {
 
   // Listen to metadata loaded events
   EventsOn('torrent:metadataLoaded', onMetadataLoaded)
+
+  // Listen to video playback starting event (page will reload after playback)
+  EventsOn('video:playbackStarting', onVideoPlaybackStarting)
 
   // Auto-refresh every 5 seconds (for peers/seeders updates)
   refreshInterval = window.setInterval(async () => {
@@ -277,6 +299,7 @@ onUnmounted(() => {
 
   // Unsubscribe from events
   EventsOff('torrent:metadataLoaded')
+  EventsOff('video:playbackStarting')
 })
 </script>
 
