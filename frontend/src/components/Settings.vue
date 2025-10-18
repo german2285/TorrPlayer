@@ -484,47 +484,49 @@ const getContrastColor = (lightness: number): string => {
   return lightness > 50 ? '#000000' : '#FFFFFF'
 }
 
-// Генерация полной M3 палитры из одного цвета
+// Генерация полной M3 палитры из одного цвета (DARK THEME)
 const generateM3Palette = (sourceColor: string) => {
   const base = hexToHSL(sourceColor)
 
-  // Primary - базовый цвет
+  // Primary - яркий акцентный цвет для темной темы
   const primary = sourceColor
-  const onPrimary = getContrastColor(base.l)
-  const primaryContainer = hslToHex(base.h, Math.max(base.s - 20, 30), 90)
-  const onPrimaryContainer = hslToHex(base.h, base.s, 15)
+  const onPrimary = '#000000' // Темный текст на ярком primary
+  const primaryContainer = hslToHex(base.h, Math.max(base.s - 10, 40), 30) // Темный контейнер
+  const onPrimaryContainer = hslToHex(base.h, Math.max(base.s, 80), 90) // Светлый текст
 
-  // Secondary - сдвиг оттенка на +30-40 градусов, меньшая насыщенность
+  // Secondary - сдвиг оттенка на +30-40 градусов
   const secHue = (base.h + 35) % 360
-  const secSat = Math.max(base.s - 20, 20)
-  const secondary = hslToHex(secHue, secSat, 40)
-  const onSecondary = '#FFFFFF'
-  const secondaryContainer = hslToHex(secHue, secSat - 10, 90)
-  const onSecondaryContainer = hslToHex(secHue, secSat, 15)
+  const secSat = Math.max(base.s - 20, 30)
+  const secondary = hslToHex(secHue, secSat, 60) // Средняя яркость
+  const onSecondary = '#000000'
+  const secondaryContainer = hslToHex(secHue, secSat, 30) // Темный контейнер
+  const onSecondaryContainer = hslToHex(secHue, secSat + 20, 90) // Светлый текст
 
   // Tertiary - сдвиг оттенка на +60-90 градусов
   const terHue = (base.h + 75) % 360
-  const terSat = Math.max(base.s - 15, 25)
-  const tertiary = hslToHex(terHue, terSat, 45)
-  const onTertiary = '#FFFFFF'
-  const tertiaryContainer = hslToHex(terHue, terSat - 10, 90)
-  const onTertiaryContainer = hslToHex(terHue, terSat, 15)
+  const terSat = Math.max(base.s - 15, 35)
+  const tertiary = hslToHex(terHue, terSat, 65)
+  const onTertiary = '#000000'
+  const tertiaryContainer = hslToHex(terHue, terSat, 30) // Темный контейнер
+  const onTertiaryContainer = hslToHex(terHue, terSat + 20, 90) // Светлый текст
 
-  // Surface - нейтральные тона на основе primary
+  // Surface - ТЕМНЫЕ нейтральные тона (Dark Mode)
   const surfaceHue = base.h
-  const surface = hslToHex(surfaceHue, 10, 99)
-  const onSurface = hslToHex(surfaceHue, 10, 12)
-  const surfaceVariant = hslToHex(surfaceHue, 15, 92)
-  const onSurfaceVariant = hslToHex(surfaceHue, 12, 30)
-  const surfaceContainer = hslToHex(surfaceHue, 12, 96)
-  const surfaceContainerHigh = hslToHex(surfaceHue, 12, 93)
-  const surfaceContainerHighest = hslToHex(surfaceHue, 12, 91)
-  const surfaceContainerLow = hslToHex(surfaceHue, 12, 97)
-  const surfaceContainerLowest = '#FFFFFF'
+  const surface = hslToHex(surfaceHue, 8, 8) // Очень темный surface
+  const onSurface = hslToHex(surfaceHue, 8, 90) // Светлый текст
+  const surfaceVariant = hslToHex(surfaceHue, 10, 25) // Темный variant
+  const onSurfaceVariant = hslToHex(surfaceHue, 10, 80) // Светлый текст на variant
 
-  // Outline
-  const outline = hslToHex(surfaceHue, 10, 50)
-  const outlineVariant = hslToHex(surfaceHue, 15, 80)
+  // Surface containers - градация темных оттенков
+  const surfaceContainerLowest = hslToHex(surfaceHue, 8, 6) // Самый темный
+  const surfaceContainerLow = hslToHex(surfaceHue, 8, 11)
+  const surfaceContainer = hslToHex(surfaceHue, 8, 13)
+  const surfaceContainerHigh = hslToHex(surfaceHue, 8, 15)
+  const surfaceContainerHighest = hslToHex(surfaceHue, 8, 17) // Самый светлый из темных
+
+  // Outline - границы
+  const outline = hslToHex(surfaceHue, 8, 40)
+  const outlineVariant = hslToHex(surfaceHue, 10, 30)
 
   // Background
   const background = surface
