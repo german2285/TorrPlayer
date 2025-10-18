@@ -27,13 +27,6 @@ type BTSets struct {
 	TorrentDisconnectTimeout int  // in seconds
 	EnableDebug              bool // debug logs
 
-	// DLNA
-	EnableDLNA   bool
-	FriendlyName string
-
-	// Rutor
-	EnableRutorSearch bool
-
 	// BT Config
 	EnableIPv6        bool
 	DisableTCP        bool
@@ -47,16 +40,12 @@ type BTSets struct {
 	ConnectionsLimit  int
 	PeersListenPort   int
 
-	// HTTPS
-	SslPort int
-	SslCert string
-	SslKey  string
-
 	// Reader
 	ResponsiveMode bool // enable Responsive reader (don't wait pieceComplete)
 
 	// UI
-	ThemeColor string // Material Design 3 theme color in HEX format
+	ThemeColor    string // Material Design 3 theme color in HEX format
+	BgMusicVolume int    // Background music volume 0-100
 }
 
 func (v *BTSets) String() string {
@@ -93,6 +82,13 @@ func SetBTSets(sets *BTSets) {
 	}
 	if sets.PreloadCache > 100 {
 		sets.PreloadCache = 100
+	}
+
+	if sets.BgMusicVolume < 0 {
+		sets.BgMusicVolume = 0
+	}
+	if sets.BgMusicVolume > 100 {
+		sets.BgMusicVolume = 100
 	}
 
 	if sets.TorrentsSavePath == "" {
@@ -134,6 +130,7 @@ func SetDefaultConfig() {
 	sets.TorrentDisconnectTimeout = 30
 	sets.ReaderReadAHead = 95 // 95%
 	sets.ThemeColor = "#6750A4" // M3 default purple
+	sets.BgMusicVolume = 30 // 30% volume
 	BTsets = sets
 	if !ReadOnly {
 		buf, err := json.Marshal(BTsets)
@@ -156,7 +153,13 @@ func loadBTSets() {
 			// Set default theme color if not set (for existing configs)
 			if BTsets.ThemeColor == "" {
 				BTsets.ThemeColor = "#6750A4" // M3 default purple
-				// Save updated config with theme color
+			}
+			// Set default bg music volume if not set (for existing configs)
+			if BTsets.BgMusicVolume == 0 {
+				BTsets.BgMusicVolume = 30
+			}
+			// Save updated config with defaults
+			if BTsets.ThemeColor == "#6750A4" && BTsets.BgMusicVolume == 30 {
 				SetBTSets(BTsets)
 			}
 			return

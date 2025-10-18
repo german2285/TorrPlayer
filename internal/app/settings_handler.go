@@ -25,6 +25,7 @@ func (a *App) GetSettings() *Settings {
 		PreloadCache:     btsets.PreloadCache,
 		RetrackersMode:   btsets.RetrackersMode,
 		ThemeColor:       btsets.ThemeColor,
+		BgMusicVolume:    btsets.BgMusicVolume,
 	}
 }
 
@@ -44,6 +45,7 @@ func (a *App) SetSettings(s *Settings) error {
 	btsets.PreloadCache = s.PreloadCache
 	btsets.RetrackersMode = s.RetrackersMode
 	btsets.ThemeColor = s.ThemeColor
+	btsets.BgMusicVolume = s.BgMusicVolume
 
 	settings.SetBTSets(btsets)
 

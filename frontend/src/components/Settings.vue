@@ -238,6 +238,7 @@ interface TorrentSettings {
   uploadRate: number       // in kb/s, 0 = unlimited
   preloadCache: number     // in percent 0-100
   retrackersMode: number   // 0-3
+  bgMusicVolume: number    // in percent 0-100
 }
 
 const settings: Ref<SettingsData> = ref({
@@ -264,31 +265,24 @@ const torrentSettings: Ref<TorrentSettings> = ref({
   downloadRate: 0,
   uploadRate: 0,
   preloadCache: 50,
-  retrackersMode: 1
+  retrackersMode: 1,
+  bgMusicVolume: 30
 })
 
 // Для отображения в UI (конвертация из bytes в MB/GB)
 const cacheSizeMB = ref(64)
 const downloadRateMB = ref(0)
 const uploadRateMB = ref(0)
+const bgMusicVolume = ref(30) // Proxy для UI
 
-// Background music volume (0-100)
-const bgMusicVolume = ref(30)
-
-// Watch bgMusicVolume changes and save to localStorage
+// Watch bgMusicVolume changes and dispatch event
 watch(bgMusicVolume, (newVolume) => {
-  localStorage.setItem('bgMusicVolume', newVolume.toString())
+  torrentSettings.value.bgMusicVolume = newVolume
   // Dispatch custom event for App.vue to listen
   window.dispatchEvent(new CustomEvent('bgMusicVolumeChanged', { detail: newVolume }))
 })
 
 onMounted(async () => {
-  // Load background music volume from localStorage
-  const savedBgVolume = localStorage.getItem('bgMusicVolume')
-  if (savedBgVolume) {
-    bgMusicVolume.value = parseInt(savedBgVolume, 10)
-  }
-
   try {
     const btSettings = await GetSettings()
     if (btSettings) {
@@ -299,11 +293,13 @@ onMounted(async () => {
       torrentSettings.value.uploadRate = btSettings.uploadRate
       torrentSettings.value.preloadCache = btSettings.preloadCache
       torrentSettings.value.retrackersMode = btSettings.retrackersMode
+      torrentSettings.value.bgMusicVolume = btSettings.bgMusicVolume
 
       // Конвертируем для UI
       cacheSizeMB.value = Math.round(btSettings.cacheSize / (1024 * 1024))
       downloadRateMB.value = Math.round(btSettings.downloadRate / 1024)
       uploadRateMB.value = Math.round(btSettings.uploadRate / 1024)
+      bgMusicVolume.value = btSettings.bgMusicVolume
 
       // Загрузить цвет темы из backend
       if (btSettings.themeColor) {
@@ -327,6 +323,7 @@ const saveSettings = async (): Promise<void> => {
     torrentSettings.value.cacheSize = cacheSizeMB.value * 1024 * 1024
     torrentSettings.value.downloadRate = downloadRateMB.value * 1024
     torrentSettings.value.uploadRate = uploadRateMB.value * 1024
+    torrentSettings.value.bgMusicVolume = bgMusicVolume.value
 
     // Создаем объект с всеми настройками включая цвет темы
     const allSettings = {
@@ -639,6 +636,7 @@ const selectColorPreset = (color: string): void => {
     background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
   border-radius: 50%;
   box-shadow: var(--md-sys-elevation-level1);
+  will-change: transform, width, height, background; /* Оптимизация анимации */
 }
 
 .switch-slider:hover {
@@ -668,7 +666,7 @@ const selectColorPreset = (color: string): void => {
 /* Основано на Android tokens.xml: m3_comp_slider_medium_* */
 .slider {
   width: 220px; /* Expressive: немного шире */
-  height: 8px; /* M3 Expressive: увеличен track (адаптировано от 40dp Android) */
+  height: 16px; /* M3 Expressive Medium: 16dp track height (официальная спецификация) */
   border-radius: var(--md-sys-shape-corner-medium); /* M3 Expressive: 16px */
   background: var(--md-sys-color-surface-container-highest);
   outline: none;
@@ -678,18 +676,19 @@ const selectColorPreset = (color: string): void => {
   z-index: 1;
   /* M3 Expressive Physics: Fast spatial spring for track height */
   transition: height var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+  will-change: height; /* Оптимизация анимации */
 }
 
 .slider:hover {
-  height: 10px; /* M3 Expressive: track увеличивается при hover */
+  height: 18px; /* M3 Expressive: track увеличивается при hover */
 }
 
 /* WebKit (Chrome, Safari, Edge) - Вертикальная линия вместо круга */
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 4px; /* M3 Expressive: узкий thumb как вертикальная линия (как в Android) */
-  height: 28px; /* M3 Expressive: высокий thumb (адаптировано от 44dp Android) */
+  width: 4px; /* M3 Expressive Medium: 4dp узкий thumb (официальная спецификация) */
+  height: 44px; /* M3 Expressive Medium: 44dp высокий thumb (официальная спецификация Android) */
   border-radius: var(--md-sys-shape-corner-extra-small); /* M3 Expressive: 6px */
   background: var(--md-sys-color-primary);
   cursor: grab;
@@ -700,10 +699,11 @@ const selectColorPreset = (color: string): void => {
     height var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial),
     box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
     background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
+  will-change: width, height, box-shadow; /* Оптимизация анимации */
 }
 
 .slider::-webkit-slider-thumb:hover {
-  height: 32px; /* M3 Expressive: увеличивается при hover */
+  height: 48px; /* M3 Expressive Medium: увеличивается при hover */
   width: 5px;
   box-shadow: var(--md-sys-elevation-level3);
   background: var(--md-sys-color-primary);
@@ -711,7 +711,7 @@ const selectColorPreset = (color: string): void => {
 
 .slider::-webkit-slider-thumb:active {
   cursor: grabbing;
-  height: 36px; /* M3 Expressive: максимальная высота при active */
+  height: 52px; /* M3 Expressive Medium: максимальная высота при active */
   width: 6px;
   box-shadow: var(--md-sys-elevation-level4);
   background: var(--md-sys-color-primary);
@@ -719,8 +719,8 @@ const selectColorPreset = (color: string): void => {
 
 /* Firefox - Вертикальная линия */
 .slider::-moz-range-thumb {
-  width: 4px; /* M3 Expressive: вертикальная линия */
-  height: 28px;
+  width: 4px; /* M3 Expressive Medium: 4dp */
+  height: 44px; /* M3 Expressive Medium: 44dp (официальная спецификация) */
   border-radius: var(--md-sys-shape-corner-extra-small); /* 6px */
   background: var(--md-sys-color-primary);
   cursor: grab;
@@ -731,24 +731,25 @@ const selectColorPreset = (color: string): void => {
     width var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial),
     height var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial),
     box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
+  will-change: width, height, box-shadow; /* Оптимизация анимации */
 }
 
 .slider::-moz-range-thumb:hover {
-  height: 32px;
+  height: 48px; /* M3 Expressive Medium: увеличивается при hover */
   width: 5px;
   box-shadow: var(--md-sys-elevation-level3);
 }
 
 .slider::-moz-range-thumb:active {
   cursor: grabbing;
-  height: 36px;
+  height: 52px; /* M3 Expressive Medium: максимальная высота при active */
   width: 6px;
   box-shadow: var(--md-sys-elevation-level4);
 }
 
 /* Track styles для Firefox */
 .slider::-moz-range-track {
-  height: 8px;
+  height: 16px; /* M3 Expressive Medium: 16dp (соответствие основному track) */
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-highest);
   border: none;

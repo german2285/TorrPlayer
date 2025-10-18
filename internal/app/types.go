@@ -56,4 +56,5 @@ type Settings struct {
 	PreloadCache     int    `json:"preloadCache"`
 	RetrackersMode   int    `json:"retrackersMode"`
 	ThemeColor       string `json:"themeColor"`
+	BgMusicVolume    int    `json:"bgMusicVolume"`
 }

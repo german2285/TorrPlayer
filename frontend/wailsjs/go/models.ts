@@ -9,6 +9,7 @@ export namespace app {
 	    preloadCache: number;
 	    retrackersMode: number;
 	    themeColor: string;
+	    bgMusicVolume: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -24,6 +25,7 @@ export namespace app {
 	        this.preloadCache = source["preloadCache"];
 	        this.retrackersMode = source["retrackersMode"];
 	        this.themeColor = source["themeColor"];
+	        this.bgMusicVolume = source["bgMusicVolume"];
 	    }
 	}
 	export class Torrent {
