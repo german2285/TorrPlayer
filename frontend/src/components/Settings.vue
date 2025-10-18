@@ -14,104 +14,6 @@
       <!-- Settings Content -->
       <div class="settings-content">
 
-        <!-- Воспроизведение -->
-        <div class="settings-section">
-          <h3 class="section-title">Воспроизведение</h3>
-          <div class="settings-list">
-
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">Автовоспроизведение</div>
-                <div class="setting-description">Начинать воспроизведение автоматически</div>
-              </div>
-              <label class="switch">
-                <input type="checkbox" v-model="settings.autoplay">
-                <span class="switch-slider"></span>
-              </label>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">Субтитры</div>
-                <div class="setting-description">Показывать субтитры по умолчанию</div>
-              </div>
-              <label class="switch">
-                <input type="checkbox" v-model="settings.subtitles">
-                <span class="switch-slider"></span>
-              </label>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">Громкость видео</div>
-                <div class="setting-description">{{ settings.volume }}%</div>
-              </div>
-              <input
-                type="range"
-                class="slider"
-                min="0"
-                max="100"
-                v-model="settings.volume"
-              >
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">Громкость музыки</div>
-                <div class="setting-description">{{ bgMusicVolume }}%</div>
-              </div>
-              <input
-                type="range"
-                class="slider"
-                min="0"
-                max="100"
-                v-model="bgMusicVolume"
-              >
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Качество -->
-        <div class="settings-section">
-          <h3 class="section-title">Качество</h3>
-          <div class="settings-list">
-
-            <div class="setting-item clickable" @click="selectQuality('auto')">
-              <div class="setting-info">
-                <div class="setting-label">Автоматическое</div>
-                <div class="setting-description">Подстраивать под скорость интернета</div>
-              </div>
-              <div class="radio-indicator" :class="{ active: settings.quality === 'auto' }"></div>
-            </div>
-
-            <div class="setting-item clickable" @click="selectQuality('1080p')">
-              <div class="setting-info">
-                <div class="setting-label">1080p Full HD</div>
-                <div class="setting-description">Высокое качество</div>
-              </div>
-              <div class="radio-indicator" :class="{ active: settings.quality === '1080p' }"></div>
-            </div>
-
-            <div class="setting-item clickable" @click="selectQuality('720p')">
-              <div class="setting-info">
-                <div class="setting-label">720p HD</div>
-                <div class="setting-description">Хорошее качество</div>
-              </div>
-              <div class="radio-indicator" :class="{ active: settings.quality === '720p' }"></div>
-            </div>
-
-            <div class="setting-item clickable" @click="selectQuality('480p')">
-              <div class="setting-info">
-                <div class="setting-label">480p SD</div>
-                <div class="setting-description">Экономия трафика</div>
-              </div>
-              <div class="radio-indicator" :class="{ active: settings.quality === '480p' }"></div>
-            </div>
-
-          </div>
-        </div>
-
         <!-- Торрент -->
         <div class="settings-section">
           <h3 class="section-title">Торрент</h3>
@@ -211,17 +113,6 @@
               </label>
             </div>
 
-            <div class="setting-item">
-              <div class="setting-info">
-                <div class="setting-label">Анимации</div>
-                <div class="setting-description">Плавные переходы и эффекты</div>
-              </div>
-              <label class="switch">
-                <input type="checkbox" v-model="settings.animations">
-                <span class="switch-slider"></span>
-              </label>
-            </div>
-
           </div>
         </div>
 
@@ -312,15 +203,8 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-type QualityOption = 'auto' | '1080p' | '720p' | '480p'
-
 interface SettingsData {
-  autoplay: boolean
-  subtitles: boolean
-  volume: number
-  quality: QualityOption
   darkTheme: boolean
-  animations: boolean
   themeColor: string
 }
 
@@ -335,12 +219,7 @@ interface TorrentSettings {
 }
 
 const settings: Ref<SettingsData> = ref({
-  autoplay: true,
-  subtitles: false,
-  volume: 80,
-  quality: 'auto',
   darkTheme: true,
-  animations: true,
   themeColor: '#6750A4' // M3 default purple
 })
 
@@ -371,22 +250,7 @@ const cacheSizeMB = ref(64)
 const downloadRateMB = ref(0)
 const uploadRateMB = ref(0)
 
-// Background music volume (0-100)
-const bgMusicVolume = ref(30)
-
-// Watch bgMusicVolume changes and save to localStorage
-watch(bgMusicVolume, (newVolume) => {
-  localStorage.setItem('bgMusicVolume', newVolume.toString())
-  // Dispatch custom event for App.vue to listen
-  window.dispatchEvent(new CustomEvent('bgMusicVolumeChanged', { detail: newVolume }))
-})
-
 onMounted(async () => {
-  // Load background music volume from localStorage
-  const savedBgVolume = localStorage.getItem('bgMusicVolume')
-  if (savedBgVolume) {
-    bgMusicVolume.value = parseInt(savedBgVolume, 10)
-  }
 
   try {
     const btSettings = await GetSettings()
@@ -418,10 +282,6 @@ const onClose = async (): Promise<void> => {
   // Сохраняем настройки перед закрытием
   await saveSettings()
   emit('close')
-}
-
-const selectQuality = (quality: QualityOption): void => {
-  settings.value.quality = quality
 }
 
 const saveSettings = async (): Promise<void> => {

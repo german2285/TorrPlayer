@@ -36,19 +36,15 @@ func (a *App) Startup(ctx context.Context) {
 	runtime.LogInfo(ctx, "TorrPlayer starting...")
 
 	// Initialize settings and logging
-	// Use user's home directory for config storage
-	homeDir, err := os.UserHomeDir()
+	// Use executable directory for config storage (settings.json will be next to .exe)
+	exePath, err := os.Executable()
 	if err != nil {
-		runtime.LogError(ctx, fmt.Sprintf("Failed to get home dir: %v", err))
-		homeDir, _ = os.Getwd() // Fallback to current directory
+		runtime.LogError(ctx, fmt.Sprintf("Failed to get executable path: %v", err))
+		exePath, _ = os.Getwd() // Fallback to current directory
 	}
 
-	// Create .torrplayer config directory
-	configDir := filepath.Join(homeDir, ".torrplayer")
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		runtime.LogError(ctx, fmt.Sprintf("Failed to create config dir: %v", err))
-		configDir, _ = os.Getwd() // Fallback to current directory
-	}
+	// Get directory where executable is located
+	configDir := filepath.Dir(exePath)
 
 	settings.Path = configDir
 	runtime.LogInfo(ctx, fmt.Sprintf("Config directory: %s", configDir))
