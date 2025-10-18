@@ -114,7 +114,21 @@ if [ "$CREATE_RELEASE" = true ]; then
     fi
 fi
 
-echo "[1/4] Installing frontend dependencies..."
+echo "[0/5] Cleaning all caches and build artifacts..."
+echo "Removing frontend caches..."
+rm -rf frontend/node_modules
+rm -rf frontend/dist
+rm -rf frontend/.vite
+echo "Removing build artifacts..."
+rm -rf build/
+rm -rf cmd/torrplayer/frontend/
+rm -rf cmd/torrplayer/build/
+echo "Removing Go build cache..."
+go clean -cache -modcache -testcache 2>/dev/null || true
+echo "Cache cleanup completed!"
+echo ""
+
+echo "[1/5] Installing frontend dependencies..."
 cd frontend
 npm install
 if [ $? -ne 0 ]; then
@@ -123,7 +137,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "[2/4] Building frontend..."
+echo "[2/5] Building frontend..."
 npm run build
 if [ $? -ne 0 ]; then
     echo "ERROR: Frontend build failed"
@@ -132,7 +146,7 @@ fi
 cd ..
 
 echo ""
-echo "[3/4] Copying frontend dist for embedding..."
+echo "[3/5] Copying frontend dist for embedding..."
 mkdir -p cmd/torrplayer/frontend
 cp -r frontend/dist cmd/torrplayer/frontend/
 if [ $? -ne 0 ]; then
@@ -142,7 +156,7 @@ fi
 echo "Frontend dist copied successfully"
 
 echo ""
-echo "[4/4] Building Go application with Wails (DEV MODE)..."
+echo "[4/5] Building Go application with Wails (DEV MODE)..."
 cd cmd/torrplayer
 wails build -clean -platform windows/amd64 -debug -devtools
 if [ $? -ne 0 ]; then
@@ -152,7 +166,17 @@ fi
 cd ../..
 
 echo ""
-echo "[5/5] Copying libmpv-2.dll to build directory..."
+echo "[5/5] Copying files to root build directory..."
+# Create root build/bin directory
+mkdir -p build/bin
+# Copy executable from wails build location
+if [ -f "cmd/torrplayer/build/bin/torrplayer-merged.exe" ]; then
+    cp cmd/torrplayer/build/bin/torrplayer-merged.exe build/bin/
+    echo "torrplayer-merged.exe copied to build/bin/"
+else
+    echo "WARNING: torrplayer-merged.exe not found"
+fi
+# Copy libmpv-2.dll
 if [ -f "third_party/libmpv-2.dll" ]; then
     cp third_party/libmpv-2.dll build/bin/
     echo "libmpv-2.dll copied successfully"
@@ -163,7 +187,7 @@ fi
 # Create release package if version is specified
 if [ -n "$VERSION" ]; then
     echo ""
-    echo "[4/4] Creating development release package..."
+    echo "[6/6] Creating development release package..."
 
     RELEASE_DIR="build/release"
     RELEASE_NAME="TorrPlayer-${VERSION}-windows-amd64-dev"
