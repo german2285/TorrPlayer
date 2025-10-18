@@ -176,6 +176,43 @@
   --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);             /* Expressive: более плавная */
   --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);  /* Expressive */
   --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);  /* Expressive */
+
+  /* === Spring Physics System (Material 3 Expressive) === */
+  /* Approximated spring physics using CSS cubic-bezier + durations */
+  /* Based on Material Design 3 spring attributes: damping ratio & stiffness */
+
+  /* Fast Springs (small components: buttons, switches) */
+  /* Fast Spatial: damping 0.9, stiffness 1400 → ~150-200ms */
+  --md-sys-motion-spring-expressive-fast-spatial: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-spring-expressive-fast-spatial-duration: 180ms;
+
+  /* Fast Effects: damping 1, stiffness 3800 → ~100-120ms (no overshoot) */
+  --md-sys-motion-spring-expressive-fast-effects: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-spring-expressive-fast-effects-duration: 100ms;
+
+  /* Default Springs (medium components: bottom sheets, nav drawer) */
+  /* Default Spatial: damping 0.9, stiffness 700 → ~300-400ms */
+  --md-sys-motion-spring-expressive-default-spatial: cubic-bezier(0.3, 0, 0.1, 1);
+  --md-sys-motion-spring-expressive-default-spatial-duration: 350ms;
+
+  /* Default Effects: damping 1, stiffness 1600 → ~200-250ms (no overshoot) */
+  --md-sys-motion-spring-expressive-default-effects: cubic-bezier(0.05, 0, 0, 1);
+  --md-sys-motion-spring-expressive-default-effects-duration: 220ms;
+
+  /* Slow Springs (full screen animations) */
+  /* Slow Spatial: damping 0.9, stiffness 300 → ~500-600ms */
+  --md-sys-motion-spring-expressive-slow-spatial: cubic-bezier(0.4, 0, 0.2, 1);
+  --md-sys-motion-spring-expressive-slow-spatial-duration: 550ms;
+
+  /* Slow Effects: damping 1, stiffness 800 → ~350-400ms (no overshoot) */
+  --md-sys-motion-spring-expressive-slow-effects: cubic-bezier(0.1, 0, 0, 1);
+  --md-sys-motion-spring-expressive-slow-effects-duration: 380ms;
+
+  /* === State Layer Opacities (Material 3) === */
+  --md-sys-state-hover-opacity: 0.08;
+  --md-sys-state-focus-opacity: 0.12;
+  --md-sys-state-pressed-opacity: 0.12;
+  --md-sys-state-dragged-opacity: 0.16;
 }
 
 /* === Dark Theme (автоматическое переключение) === */
