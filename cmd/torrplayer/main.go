@@ -12,7 +12,7 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:            "TorrPlayer Merged",
+		Title:            "TorrPlayer",
 		Width:            1200,
 		Height:           800,
 		MinWidth:         1000,
