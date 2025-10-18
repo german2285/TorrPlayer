@@ -114,7 +114,7 @@ if [ "$CREATE_RELEASE" = true ]; then
     fi
 fi
 
-echo "[1/2] Installing frontend dependencies..."
+echo "[1/3] Installing frontend dependencies..."
 cd frontend
 npm install
 if [ $? -ne 0 ]; then
@@ -124,7 +124,17 @@ fi
 cd ..
 
 echo ""
-echo "[2/2] Building Go application with Wails (DEV MODE)..."
+echo "[2/3] Copying frontend dist for embedding..."
+mkdir -p cmd/torrplayer/frontend
+cp -r frontend/dist cmd/torrplayer/frontend/
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to copy frontend dist"
+    exit 1
+fi
+echo "Frontend dist copied successfully"
+
+echo ""
+echo "[3/3] Building Go application with Wails (DEV MODE)..."
 cd cmd/torrplayer
 wails build -clean -platform windows/amd64 -debug -devtools
 if [ $? -ne 0 ]; then
@@ -134,7 +144,7 @@ fi
 cd ../..
 
 echo ""
-echo "[3/3] Copying libmpv-2.dll to build directory..."
+echo "[4/4] Copying libmpv-2.dll to build directory..."
 if [ -f "third_party/libmpv-2.dll" ]; then
     cp third_party/libmpv-2.dll build/bin/
     echo "libmpv-2.dll copied successfully"
