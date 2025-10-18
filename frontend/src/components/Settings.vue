@@ -43,7 +43,7 @@
 
             <div class="setting-item">
               <div class="setting-info">
-                <div class="setting-label">Громкость</div>
+                <div class="setting-label">Громкость видео</div>
                 <div class="setting-description">{{ settings.volume }}%</div>
               </div>
               <input
@@ -52,6 +52,20 @@
                 min="0"
                 max="100"
                 v-model="settings.volume"
+              >
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label">Громкость музыки</div>
+                <div class="setting-description">{{ bgMusicVolume }}%</div>
+              </div>
+              <input
+                type="range"
+                class="slider"
+                min="0"
+                max="100"
+                v-model="bgMusicVolume"
               >
             </div>
 
@@ -288,7 +302,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import type { Ref } from 'vue'
 import { GetSettings, SetSettings } from '../../wailsjs/go/app/App'
 import type { app } from '../../wailsjs/go/models'
@@ -356,7 +370,23 @@ const cacheSizeMB = ref(64)
 const downloadRateMB = ref(0)
 const uploadRateMB = ref(0)
 
+// Background music volume (0-100)
+const bgMusicVolume = ref(30)
+
+// Watch bgMusicVolume changes and save to localStorage
+watch(bgMusicVolume, (newVolume) => {
+  localStorage.setItem('bgMusicVolume', newVolume.toString())
+  // Dispatch custom event for App.vue to listen
+  window.dispatchEvent(new CustomEvent('bgMusicVolumeChanged', { detail: newVolume }))
+})
+
 onMounted(async () => {
+  // Load background music volume from localStorage
+  const savedBgVolume = localStorage.getItem('bgMusicVolume')
+  if (savedBgVolume) {
+    bgMusicVolume.value = parseInt(savedBgVolume, 10)
+  }
+
   try {
     const btSettings = await GetSettings()
     if (btSettings) {

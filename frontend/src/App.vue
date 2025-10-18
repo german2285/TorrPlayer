@@ -12,23 +12,6 @@
             v-model="searchQuery"
           >
           <div class="action-icons">
-            <!-- Volume Control -->
-            <div class="volume-control">
-              <img
-                :src="bgVolume === 0 ? volumeMutedIcon : volumeIcon"
-                class="volume-icon"
-                alt="Volume"
-              />
-              <input
-                type="range"
-                class="volume-slider"
-                min="0"
-                max="1"
-                step="0.01"
-                v-model.number="bgVolume"
-                title="Громкость фоновой музыки"
-              >
-            </div>
             <RippleEffect>
               <button class="icon-btn" title="Добавить торрент" @click="showAddTorrent = true">
                 <img :src="addIcon" class="icon" alt="Add" />
@@ -114,8 +97,6 @@ import type { Torrent } from './types'
 import searchIcon from './assets/icons/search.svg'
 import addIcon from './assets/icons/add.svg'
 import settingsIcon from './assets/icons/settings.svg'
-import volumeIcon from './assets/icons/volume.svg'
-import volumeMutedIcon from './assets/icons/volume-muted.svg'
 import backgroundMusicUrl from './assets/audio/background-music.mp3'
 
 interface TorrentMetadataLoadedEvent {
@@ -139,7 +120,7 @@ const selectedTorrent: Ref<Torrent | null> = ref(null)
 
 // Background music
 const bgAudio: Ref<HTMLAudioElement | null> = ref(null)
-const bgVolume: Ref<number> = ref(0.3) // Default volume 30%
+const bgVolume: Ref<number> = ref(0.3) // Default volume 30% (0-1 range for audio element)
 
 // Filter torrents by search query
 const filteredTorrents = computed(() => {
@@ -261,6 +242,18 @@ onMounted(async () => {
       console.error('Failed to refresh torrents:', error)
     }
   }, 5000)
+
+  // Load background music volume from localStorage (0-100 range)
+  const savedBgVolume = localStorage.getItem('bgMusicVolume')
+  if (savedBgVolume) {
+    bgVolume.value = parseInt(savedBgVolume, 10) / 100 // Convert 0-100 to 0-1
+  }
+
+  // Listen to background music volume changes from Settings
+  const handleVolumeChange = (event: CustomEvent) => {
+    bgVolume.value = event.detail / 100 // Convert 0-100 to 0-1
+  }
+  window.addEventListener('bgMusicVolumeChanged', handleVolumeChange as EventListener)
 
   // Initialize background music
   if (bgAudio.value) {
@@ -547,94 +540,5 @@ onUnmounted(() => {
 .loading-state p {
   font-family: var(--md-sys-typescale-body-large-font);
   font-size: var(--md-sys-typescale-body-large-size);
-}
-
-/* Volume Control */
-.volume-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: var(--md-sys-color-surface-container-highest);
-  transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
-}
-
-.volume-control:hover {
-  background: var(--md-sys-color-surface-container-high);
-  transform: scale(1.02);
-}
-
-.volume-icon {
-  width: 20px;
-  height: 20px;
-  opacity: 0.8;
-  color: var(--md-sys-color-on-surface-variant);
-  transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
-  flex-shrink: 0;
-}
-
-.volume-control:hover .volume-icon {
-  opacity: 1;
-  color: var(--md-sys-color-primary);
-}
-
-.volume-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 80px;
-  height: 4px;
-  border-radius: 2px;
-  background: linear-gradient(
-    to right,
-    var(--md-sys-color-primary) 0%,
-    var(--md-sys-color-primary) var(--slider-value, 30%),
-    var(--md-sys-color-surface-container) var(--slider-value, 30%),
-    var(--md-sys-color-surface-container) 100%
-  );
-  outline: none;
-  transition: all var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
-  cursor: pointer;
-}
-
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--md-sys-color-primary);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-emphasized);
-}
-
-.volume-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--md-sys-color-primary);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-emphasized);
-}
-
-.volume-slider:hover::-webkit-slider-thumb {
-  transform: scale(1.2);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.volume-slider:hover::-moz-range-thumb {
-  transform: scale(1.2);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.volume-slider:active::-webkit-slider-thumb {
-  transform: scale(1.1);
-}
-
-.volume-slider:active::-moz-range-thumb {
-  transform: scale(1.1);
 }
 </style>
