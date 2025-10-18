@@ -116,7 +116,7 @@ func (a *App) GetTorrents() []Torrent {
 	runtime.LogDebug(a.ctx, "ListTorrent returned successfully")
 
 	if list == nil {
-		runtime.LogWarning(a.ctx, "ListTorrent returned nil, returning empty list")
+		runtime.LogDebug(a.ctx, "No torrents in list, returning empty list")
 		return []Torrent{}
 	}
 
