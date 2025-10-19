@@ -187,6 +187,265 @@
           </div>
         </div>
 
+        <!-- Расширенные настройки -->
+        <div class="settings-section">
+          <h3 class="section-title">Расширенные настройки</h3>
+          <div class="settings-list">
+
+            <div class="setting-item clickable" @click="showAdvancedSettings = !showAdvancedSettings">
+              <div class="setting-info">
+                <div class="setting-label">{{ showAdvancedSettings ? 'Скрыть' : 'Показать' }} расширенные настройки</div>
+                <div class="setting-description">Параметры для опытных пользователей</div>
+              </div>
+              <svg
+                class="expand-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                :style="{ transform: showAdvancedSettings ? 'rotate(180deg)' : 'rotate(0deg)' }"
+              >
+                <path d="M7 10l5 5 5-5z"/>
+              </svg>
+            </div>
+
+            <transition name="expand">
+              <div v-if="showAdvancedSettings" class="advanced-settings-content">
+
+                <!-- ХРАНИЛИЩЕ -->
+                <div class="subsection-divider">ХРАНИЛИЩЕ</div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Использование диска</div>
+                    <div class="setting-description">{{ torrentSettings.useDisk ? 'Диск' : 'RAM' }}</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.useDisk">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item-full">
+                  <div class="setting-info">
+                    <div class="setting-label">Путь сохранения торрентов</div>
+                    <div class="setting-description">Оставьте пустым для автоматического выбора</div>
+                  </div>
+                  <input
+                    type="text"
+                    class="text-input"
+                    placeholder="По умолчанию"
+                    v-model="torrentSettings.torrentsSavePath"
+                  >
+                </div>
+
+                <!-- РЕТРЕКЕРЫ -->
+                <div class="subsection-divider">РЕТРЕКЕРЫ</div>
+
+                <div class="setting-item-with-help">
+                  <div class="setting-info">
+                    <div class="setting-label-with-icon">
+                      <span>Режим ретрекеров</span>
+                      <button
+                        class="help-icon-button"
+                        @click="showRetrackersHelpDialog = true"
+                        title="Подробнее о режимах"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="setting-description">{{ formatRetrackersMode(torrentSettings.retrackersMode) }}</div>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    min="0"
+                    max="3"
+                    step="1"
+                    v-model="torrentSettings.retrackersMode"
+                  >
+                </div>
+
+                <!-- СЕТЕВЫЕ НАСТРОЙКИ -->
+                <div class="subsection-divider">СЕТЕВЫЕ НАСТРОЙКИ</div>
+
+                <div class="setting-item-full">
+                  <div class="setting-info">
+                    <div class="setting-label">Порт входящих соединений</div>
+                    <div class="setting-description">0 = автоматический выбор порта</div>
+                  </div>
+                  <input
+                    type="number"
+                    class="number-input"
+                    min="0"
+                    max="65535"
+                    placeholder="0"
+                    v-model.number="torrentSettings.peersListenPort"
+                  >
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Отключить DHT</div>
+                    <div class="setting-description">Распределенная хеш-таблица</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.disableDHT">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Отключить PEX</div>
+                    <div class="setting-description">Обмен пирами</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.disablePEX">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Отключить µTP</div>
+                    <div class="setting-description">Микро транспортный протокол</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.disableUTP">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Отключить UPnP</div>
+                    <div class="setting-description">Автоматическая проброска портов</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.disableUPNP">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Отключить TCP</div>
+                    <div class="setting-description">TCP протокол</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.disableTCP">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Отключить раздачу</div>
+                    <div class="setting-description">Полностью отключить upload</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.disableUpload">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Принудительное шифрование</div>
+                    <div class="setting-description">Шифровать все соединения</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.forceEncrypt">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Поддержка IPv6</div>
+                    <div class="setting-description">Использовать IPv6 адреса</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.enableIPv6">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <!-- ПРОИЗВОДИТЕЛЬНОСТЬ -->
+                <div class="subsection-divider">ПРОИЗВОДИТЕЛЬНОСТЬ</div>
+
+                <div class="setting-item setting-warning">
+                  <div class="setting-info">
+                    <div class="setting-label">Режим отладки</div>
+                    <div class="setting-description">Подробное логирование (увеличивает нагрузку)</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.enableDebug">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Опережающее чтение буфера</div>
+                    <div class="setting-description">{{ torrentSettings.readerReadAHead }}%</div>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    min="0"
+                    max="100"
+                    step="5"
+                    v-model="torrentSettings.readerReadAHead"
+                  >
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Удалять кеш при остановке</div>
+                    <div class="setting-description">Освобождать память при закрытии торрента</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.removeCacheOnDrop">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <div class="setting-label">Адаптивный режим</div>
+                    <div class="setting-description">Автоматическая настройка производительности</div>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" v-model="torrentSettings.responsiveMode">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-item-full">
+                  <div class="setting-info">
+                    <div class="setting-label">Таймаут отключения торрента</div>
+                    <div class="setting-description">Время ожидания перед отключением (секунды)</div>
+                  </div>
+                  <input
+                    type="number"
+                    class="number-input"
+                    min="5"
+                    max="300"
+                    placeholder="30"
+                    v-model.number="torrentSettings.torrentDisconnectTimeout"
+                  >
+                </div>
+
+              </div>
+            </transition>
+
+          </div>
+        </div>
+
         <!-- О программе -->
         <div class="settings-section">
           <h3 class="section-title">О программе</h3>
@@ -212,6 +471,68 @@
       </div>
     </div>
   </div>
+
+  <!-- Retrackers Help Dialog -->
+  <div v-if="showRetrackersHelpDialog" class="dialog-overlay" @click="showRetrackersHelpDialog = false">
+    <div class="dialog-container" @click.stop>
+      <div class="dialog-header">
+        <h3>Режимы ретрекеров</h3>
+        <button class="dialog-close" @click="showRetrackersHelpDialog = false">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="dialog-content">
+        <div class="retrackers-mode-item">
+          <div class="mode-number">0</div>
+          <div class="mode-info">
+            <div class="mode-title">Не добавлять</div>
+            <div class="mode-description">
+              Не изменять список трекеров торрента. Используйте этот режим для приватных торрентов или когда не нужны дополнительные источники.
+            </div>
+          </div>
+        </div>
+
+        <div class="retrackers-mode-item mode-default">
+          <div class="mode-number">1</div>
+          <div class="mode-info">
+            <div class="mode-title">Добавить (по умолчанию)</div>
+            <div class="mode-description">
+              Добавить публичные ретрекеры к существующим трекерам. Увеличивает количество источников (пиров и сидов), что ускоряет загрузку. Рекомендуется для большинства торрентов.
+            </div>
+          </div>
+        </div>
+
+        <div class="retrackers-mode-item">
+          <div class="mode-number">2</div>
+          <div class="mode-info">
+            <div class="mode-title">Удалить</div>
+            <div class="mode-description">
+              Удалить все публичные ретрекеры из списка трекеров. Используйте для ограничения трафика или работы только с оригинальными трекерами торрента.
+            </div>
+          </div>
+        </div>
+
+        <div class="retrackers-mode-item">
+          <div class="mode-number">3</div>
+          <div class="mode-info">
+            <div class="mode-title">Заменить</div>
+            <div class="mode-description">
+              Заменить все трекеры торрента на публичные ретрекеры. Полная замена списка трекеров. Используйте, если оригинальные трекеры не работают.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="dialog-button" @click="showRetrackersHelpDialog = false">
+          Понятно
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -231,6 +552,7 @@ interface SettingsData {
 }
 
 interface TorrentSettings {
+  // Existing settings
   cacheSize: number        // in bytes
   cacheSizeStr: string
   connectionsLimit: number
@@ -239,11 +561,38 @@ interface TorrentSettings {
   preloadCache: number     // in percent 0-100
   retrackersMode: number   // 0-3
   bgMusicVolume: number    // in percent 0-100
+  themeColor: string
+
+  // Storage settings
+  useDisk: boolean         // Use disk instead of RAM cache
+  torrentsSavePath: string // Path to save torrents
+
+  // Network settings
+  peersListenPort: number  // Port for incoming connections (0 = auto)
+
+  // Protocol settings
+  disableDHT: boolean      // Disable DHT
+  disablePEX: boolean      // Disable PEX
+  disableUTP: boolean      // Disable µTP
+  disableUPNP: boolean     // Disable UPnP
+  disableTCP: boolean      // Disable TCP
+
+  // Upload and encryption
+  disableUpload: boolean   // Disable upload completely
+  forceEncrypt: boolean    // Force encryption
+  enableIPv6: boolean      // Enable IPv6 support
+
+  // Advanced settings
+  enableDebug: boolean     // Enable debug logging
+  readerReadAHead: number  // Reader read ahead percentage 0-100
+  removeCacheOnDrop: boolean // Remove cache on drop
+  responsiveMode: boolean  // Responsive performance mode
+  torrentDisconnectTimeout: number // Timeout in seconds
 }
 
 const settings: Ref<SettingsData> = ref({
   darkTheme: true,
-  themeColor: '#6750A4' // M3 default purple
+  themeColor: '#ffffff' // Synced with JSON config default
 })
 
 // Предустановленные цветовые схемы M3
@@ -259,6 +608,7 @@ const colorPresets = [
 ]
 
 const torrentSettings: Ref<TorrentSettings> = ref({
+  // Existing settings
   cacheSize: 67108864, // 64 MB по умолчанию
   cacheSizeStr: '64 MB',
   connectionsLimit: 25,
@@ -266,7 +616,34 @@ const torrentSettings: Ref<TorrentSettings> = ref({
   uploadRate: 0,
   preloadCache: 50,
   retrackersMode: 1,
-  bgMusicVolume: 30
+  bgMusicVolume: 30,
+  themeColor: '#ffffff',
+
+  // Storage settings
+  useDisk: false,
+  torrentsSavePath: '',
+
+  // Network settings
+  peersListenPort: 0,
+
+  // Protocol settings
+  disableDHT: false,
+  disablePEX: false,
+  disableUTP: false,
+  disableUPNP: false,
+  disableTCP: false,
+
+  // Upload and encryption
+  disableUpload: false,
+  forceEncrypt: false,
+  enableIPv6: false,
+
+  // Advanced settings
+  enableDebug: false,
+  readerReadAHead: 95,
+  removeCacheOnDrop: false,
+  responsiveMode: false,
+  torrentDisconnectTimeout: 30
 })
 
 // Для отображения в UI (конвертация из bytes в MB/GB)
@@ -274,6 +651,12 @@ const cacheSizeMB = ref(64)
 const downloadRateMB = ref(0)
 const uploadRateMB = ref(0)
 const bgMusicVolume = ref(30) // Proxy для UI
+
+// Collapsible advanced settings state
+const showAdvancedSettings = ref(false)
+
+// Retrackers help dialog state
+const showRetrackersHelpDialog = ref(false)
 
 // Watch bgMusicVolume changes and dispatch event
 watch(bgMusicVolume, (newVolume) => {
@@ -286,6 +669,7 @@ onMounted(async () => {
   try {
     const btSettings = await GetSettings()
     if (btSettings) {
+      // Existing settings
       torrentSettings.value.cacheSize = btSettings.cacheSize
       torrentSettings.value.cacheSizeStr = btSettings.cacheSizeStr
       torrentSettings.value.connectionsLimit = btSettings.connectionsLimit
@@ -294,6 +678,32 @@ onMounted(async () => {
       torrentSettings.value.preloadCache = btSettings.preloadCache
       torrentSettings.value.retrackersMode = btSettings.retrackersMode
       torrentSettings.value.bgMusicVolume = btSettings.bgMusicVolume
+
+      // Storage settings
+      torrentSettings.value.useDisk = btSettings.useDisk || false
+      torrentSettings.value.torrentsSavePath = btSettings.torrentsSavePath || ''
+
+      // Network settings
+      torrentSettings.value.peersListenPort = btSettings.peersListenPort || 0
+
+      // Protocol settings
+      torrentSettings.value.disableDHT = btSettings.disableDHT || false
+      torrentSettings.value.disablePEX = btSettings.disablePEX || false
+      torrentSettings.value.disableUTP = btSettings.disableUTP || false
+      torrentSettings.value.disableUPNP = btSettings.disableUPNP || false
+      torrentSettings.value.disableTCP = btSettings.disableTCP || false
+
+      // Upload and encryption
+      torrentSettings.value.disableUpload = btSettings.disableUpload || false
+      torrentSettings.value.forceEncrypt = btSettings.forceEncrypt || false
+      torrentSettings.value.enableIPv6 = btSettings.enableIPv6 || false
+
+      // Advanced settings
+      torrentSettings.value.enableDebug = btSettings.enableDebug || false
+      torrentSettings.value.readerReadAHead = btSettings.readerReadAHead || 95
+      torrentSettings.value.removeCacheOnDrop = btSettings.removeCacheOnDrop || false
+      torrentSettings.value.responsiveMode = btSettings.responsiveMode || false
+      torrentSettings.value.torrentDisconnectTimeout = btSettings.torrentDisconnectTimeout || 30
 
       // Конвертируем для UI
       cacheSizeMB.value = Math.round(btSettings.cacheSize / (1024 * 1024))
@@ -350,6 +760,11 @@ const formatSpeed = (mb: number): string => {
     return `${(mb / 1024).toFixed(1)} GB/s`
   }
   return `${mb} MB/s`
+}
+
+const formatRetrackersMode = (mode: number): string => {
+  const modes = ['Не добавлять', 'Добавить', 'Удалить', 'Заменить']
+  return modes[mode] || 'Неизвестно'
 }
 
 // Wrapper для applyThemeColor с обновлением settings
@@ -920,5 +1335,397 @@ const selectColorPreset = (color: string): void => {
   padding: 12px 20px;
   border-radius: var(--md-sys-shape-corner-medium);
   box-shadow: var(--md-sys-elevation-level1);
+}
+
+/* Text Input - Material Design 3 Outlined TextField */
+.text-input {
+  width: 100%;
+  padding: 16px;
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  color: var(--md-sys-color-on-surface);
+  background: transparent;
+  border: 2px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  outline: none;
+  transition:
+    border-color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
+}
+
+.text-input:hover {
+  border-color: var(--md-sys-color-on-surface);
+}
+
+.text-input:focus {
+  border-color: var(--md-sys-color-primary);
+  box-shadow: 0 0 0 1px var(--md-sys-color-primary);
+}
+
+.text-input::placeholder {
+  color: var(--md-sys-color-on-surface-variant);
+  opacity: 0.6;
+}
+
+/* Number Input - Material Design 3 */
+.number-input {
+  width: 100%;
+  padding: 16px;
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  color: var(--md-sys-color-on-surface);
+  background: transparent;
+  border: 2px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  outline: none;
+  transition:
+    border-color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
+}
+
+.number-input:hover {
+  border-color: var(--md-sys-color-on-surface);
+}
+
+.number-input:focus {
+  border-color: var(--md-sys-color-primary);
+  box-shadow: 0 0 0 1px var(--md-sys-color-primary);
+}
+
+.number-input::placeholder {
+  color: var(--md-sys-color-on-surface-variant);
+  opacity: 0.6;
+}
+
+/* Remove spinner arrows for number inputs */
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.number-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Expand Icon - M3 Expressive */
+.expand-icon {
+  color: var(--md-sys-color-on-surface-variant);
+  transition: transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+/* Warning Setting Item */
+.setting-warning {
+  border-left: 3px solid var(--md-sys-color-error);
+  background: linear-gradient(
+    90deg,
+    var(--md-sys-color-error-container) 0%,
+    transparent 100%
+  );
+  opacity: 0.95;
+}
+
+.setting-warning .setting-label {
+  color: var(--md-sys-color-error);
+  font-weight: 500;
+}
+
+/* Advanced Settings Content */
+.advanced-settings-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Expand Transition - M3 Expressive */
+.expand-enter-active,
+.expand-leave-active {
+  transition:
+    opacity var(--md-sys-motion-spring-expressive-default-effects-duration) var(--md-sys-motion-spring-expressive-default-effects),
+    max-height var(--md-sys-motion-spring-expressive-default-spatial-duration) var(--md-sys-motion-spring-expressive-default-spatial);
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 1000px; /* Large enough to contain all advanced settings */
+}
+
+/* Subsection Dividers */
+.subsection-divider {
+  font-family: var(--md-sys-typescale-label-small-font);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--md-sys-color-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 20px 24px 12px 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--md-sys-color-outline-variant);
+  opacity: 0.8;
+}
+
+/* Setting Item with Help Button */
+.setting-item-with-help {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  gap: 16px;
+  position: relative;
+}
+
+.setting-label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Help Icon Button - Material Design */
+.help-icon-button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface-variant);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+}
+
+.help-icon-button:hover {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-primary);
+  transform: scale(1.2);
+}
+
+.help-icon-button:active {
+  transform: scale(1.1);
+}
+
+.help-icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Material Design Dialog Overlay */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Material Design Dialog Container */
+.dialog-container {
+  background: var(--md-sys-color-surface-container-high);
+  border-radius: var(--md-sys-shape-corner-extra-large);
+  box-shadow: var(--md-sys-elevation-level5);
+  width: 90%;
+  max-width: 550px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation:
+    dialogSlideUp-spatial var(--md-sys-motion-spring-expressive-default-spatial-duration) var(--md-sys-motion-spring-expressive-default-spatial),
+    dialogSlideUp-effects var(--md-sys-motion-spring-expressive-default-effects-duration) var(--md-sys-motion-spring-expressive-default-effects);
+}
+
+@keyframes dialogSlideUp-spatial {
+  from {
+    transform: translateY(40px) scale(0.92);
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dialogSlideUp-effects {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dialog Header */
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-family: var(--md-sys-typescale-headline-small-font);
+  font-size: var(--md-sys-typescale-headline-small-size);
+  font-weight: var(--md-sys-typescale-headline-small-weight);
+  color: var(--md-sys-color-on-surface);
+}
+
+.dialog-close {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface-variant);
+  transition:
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+}
+
+.dialog-close:hover {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-error);
+  transform: rotate(90deg);
+}
+
+.dialog-close:active {
+  transform: rotate(90deg) scale(0.95);
+}
+
+/* Dialog Content */
+.dialog-content {
+  padding: 16px 24px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-sys-color-outline-variant) transparent;
+}
+
+.dialog-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialog-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dialog-content::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline-variant);
+  border-radius: 4px;
+}
+
+/* Retrackers Mode Item */
+.retrackers-mode-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--md-sys-color-surface-container);
+  border-radius: var(--md-sys-shape-corner-large);
+  border: 2px solid transparent;
+  transition:
+    border-color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects);
+}
+
+.retrackers-mode-item.mode-default {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+}
+
+.retrackers-mode-item:last-child {
+  margin-bottom: 0;
+}
+
+.mode-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--md-sys-typescale-title-large-font);
+  font-size: var(--md-sys-typescale-title-large-size);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.mode-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mode-title {
+  font-family: var(--md-sys-typescale-title-small-font);
+  font-size: var(--md-sys-typescale-title-small-size);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.mode-description {
+  font-family: var(--md-sys-typescale-body-small-font);
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.5;
+}
+
+/* Dialog Actions */
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dialog-button {
+  padding: 10px 24px;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+}
+
+.dialog-button:hover {
+  box-shadow: var(--md-sys-elevation-level2);
+  transform: scale(1.02);
+}
+
+.dialog-button:active {
+  transform: scale(0.98);
 }
 </style>

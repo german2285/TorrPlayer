@@ -28,6 +28,7 @@ export interface TorrentFile {
 
 // Settings type matching Go backend
 export interface Settings {
+  // Existing settings
   cacheSize: number
   cacheSizeStr: string
   connectionsLimit: number
@@ -35,6 +36,34 @@ export interface Settings {
   uploadRate: number
   preloadCache: number
   retrackersMode: number
+  themeColor: string
+  bgMusicVolume: number
+
+  // Storage settings
+  useDisk: boolean
+  torrentsSavePath: string
+
+  // Network settings
+  peersListenPort: number
+
+  // Protocol settings
+  disableDHT: boolean
+  disablePEX: boolean
+  disableUTP: boolean
+  disableUPNP: boolean
+  disableTCP: boolean
+
+  // Upload and encryption
+  disableUpload: boolean
+  forceEncrypt: boolean
+  enableIPv6: boolean
+
+  // Advanced settings
+  enableDebug: boolean
+  readerReadAHead: number
+  removeCacheOnDrop: boolean
+  responsiveMode: boolean
+  torrentDisconnectTimeout: number
 }
 
 // Legacy Movie type (for backwards compatibility)
