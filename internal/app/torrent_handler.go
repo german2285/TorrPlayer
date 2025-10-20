@@ -14,7 +14,6 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	torrserv "github.com/german2285/TorrPlayer/pkg/server/torr"
-	"github.com/german2285/TorrPlayer/pkg/server/torr/state"
 	"github.com/german2285/TorrPlayer/pkg/server/utils"
 )
 
@@ -88,182 +87,78 @@ func (a *App) AddTorrent(input string) (*Torrent, error) {
 	}, nil
 }
 
-// GetTorrents returns list of all torrents
+// GetTorrents returns list of all torrents (simplified - no metadata)
 func (a *App) GetTorrents() []Torrent {
-	runtime.LogDebug(a.ctx, "GetTorrents called")
-
-	// Defer panic recovery
-	defer func() {
-		if r := recover(); r != nil {
-			runtime.LogError(a.ctx, fmt.Sprintf("PANIC in GetTorrents: %v", r))
-		}
-	}()
-
-	// Check if context is initialized (startup completed)
+	// Check if context is initialized
 	if a.ctx == nil {
-		runtime.LogWarning(a.ctx, "Context not initialized, returning empty list")
 		return []Torrent{}
 	}
 
 	// Check if BT server is initialized
 	if a.btServer == nil {
-		runtime.LogWarning(a.ctx, "BT server not initialized yet, returning empty list")
 		return []Torrent{}
 	}
 
-	runtime.LogDebug(a.ctx, "Calling ListTorrent...")
 	list := torrserv.ListTorrent()
-	runtime.LogDebug(a.ctx, "ListTorrent returned successfully")
-
 	if list == nil {
-		runtime.LogDebug(a.ctx, "No torrents in list, returning empty list")
 		return []Torrent{}
 	}
 
-	listLen := len(list)
-	runtime.LogInfo(a.ctx, fmt.Sprintf("GetTorrents called, found %d torrents", listLen))
-	runtime.LogDebug(a.ctx, "Creating torrents slice...")
-	torrents := make([]Torrent, 0, listLen)
-	runtime.LogDebug(a.ctx, "Torrents slice created successfully")
-	runtime.LogDebug(a.ctx, "Starting torrent iteration...")
+	torrents := make([]Torrent, 0, len(list))
 
 	for _, tor := range list {
 		if tor == nil {
-			runtime.LogWarning(a.ctx, "Skipping nil torrent in list")
 			continue
 		}
 
-		// Get hash first (safe operation)
+		// Get hash
 		hashStr := "unknown"
 		if tor.TorrentSpec != nil && tor.TorrentSpec.InfoHash != (metainfo.Hash{}) {
 			hashStr = tor.TorrentSpec.InfoHash.HexString()
 		}
 
-		runtime.LogDebug(a.ctx, fmt.Sprintf("Processing torrent: %s", hashStr))
-
-		// Always show the torrent - it's in DB or active
-		// SAFETY: tor.Status() might panic if tor.Torrent is nil
-		var st *state.TorrentStatus
-		if tor.Torrent != nil {
-			st = tor.Status()
-		} else {
-			// Create empty status if torrent not loaded yet
-			st = &state.TorrentStatus{
-				Name:        tor.Title,
-				TorrentSize: tor.Size,
-			}
-		}
-
-		// Get name and size from status to avoid blocking on inactive torrents
-		name := st.Name
+		// Get name from DB or spec
+		name := tor.Title
 		if name == "" && tor.TorrentSpec != nil && tor.TorrentSpec.DisplayName != "" {
 			name = tor.TorrentSpec.DisplayName
 		}
 		if name == "" {
-			name = tor.Title
+			name = "Unknown"
 		}
 
-		size := st.TorrentSize
-		if size == 0 {
-			size = tor.Size
-		}
-
-		// If we still don't have enough data, try to get it from DB
-		if name == "" || size == 0 {
-			// Safe hash extraction
-			var hash metainfo.Hash
-			if tor.TorrentSpec != nil {
-				hash = tor.TorrentSpec.InfoHash
-			}
-
-			runtime.LogDebug(a.ctx, fmt.Sprintf("Checking DB for torrent %s (name empty: %v, size zero: %v)", hash.HexString(), name == "", size == 0))
-			dbTor := torrserv.GetTorrentDB(hash)
-			if dbTor != nil {
-				runtime.LogDebug(a.ctx, fmt.Sprintf("Found in DB: Title=%s, Size=%d", dbTor.Title, dbTor.Size))
-				if name == "" && dbTor.Title != "" {
-					name = dbTor.Title
-				}
-				if size == 0 && dbTor.Size > 0 {
-					size = dbTor.Size
-				}
-			} else {
-				runtime.LogDebug(a.ctx, fmt.Sprintf("Not found in DB for hash %s", hash.HexString()))
-			}
-		}
-
-		if name == "" {
-			name = "Загрузка метаданных..."
-		}
-
-		progress := float64(0)
-		if size > 0 {
-			progress = float64(st.LoadedSize) / float64(size) * 100
-		}
-
-		// Determine status and metadata loading state
-		status := "ready"
-		loadingMeta := false
-		sizeStr := humanize.Bytes(uint64(size))
-		fileCount := len(st.FileStats)
-
-		// Check if metadata is loaded (safe check)
-		hasInfo := false
-		if tor.Torrent != nil {
-			hasInfo = tor.GotInfo()
-		}
-
-		if size == 0 || !hasInfo {
-			status = "loading"
-			loadingMeta = true
-			if size == 0 {
-				sizeStr = "Ожидание..."
-			}
-			if fileCount == 0 {
-				fileCount = 0 // Будет отображаться как "загрузка..."
-			}
-		}
-
-		// Get poster from DB
-		poster := tor.Poster
+		// Get basic info from DB
 		category := tor.Category
+		poster := tor.Poster
 		timestamp := tor.Timestamp
 		if timestamp == 0 {
 			timestamp = time.Now().Unix()
 		}
 
-		// Safe hash extraction for result
-		resultHash := hashStr
-		if resultHash == "unknown" && tor.TorrentSpec != nil {
-			resultHash = tor.TorrentSpec.InfoHash.HexString()
-		}
-
 		result := Torrent{
-			Hash:         resultHash,
-			Name:         name,
-			Title:        tor.Title,
-			Size:         size,
-			SizeStr:      sizeStr,
-			Status:       status,
-			Progress:     progress,
-			DownSpeed:    st.DownloadSpeed,
-			UpSpeed:      st.UploadSpeed,
-			DownSpeedStr: humanize.Bytes(uint64(st.DownloadSpeed)) + "/s",
-			UpSpeedStr:   humanize.Bytes(uint64(st.UploadSpeed)) + "/s",
-			Peers:        st.ActivePeers,
-			Seeders:      st.ConnectedSeeders,
-			FileCount:    fileCount,
-			Category:     category,
-			Poster:       poster,
-			Timestamp:    timestamp,
-			LoadingMeta:  loadingMeta,
+			Hash:      hashStr,
+			Name:      name,
+			Title:     tor.Title,
+			Category:  category,
+			Poster:    poster,
+			Timestamp: timestamp,
+			// No metadata fields
+			Size:         0,
+			SizeStr:      "",
+			Peers:        0,
+			Seeders:      0,
+			FileCount:    0,
+			Status:       "ready",
+			Progress:     0,
+			DownSpeed:    0,
+			UpSpeed:      0,
+			DownSpeedStr: "",
+			UpSpeedStr:   "",
+			LoadingMeta:  false,
 		}
 
-		runtime.LogDebug(a.ctx, fmt.Sprintf("Torrent: %s, Name: %s, Status: %s, Size: %d, FileCount: %d, LoadingMeta: %v", result.Hash, result.Name, result.Status, result.Size, result.FileCount, result.LoadingMeta))
 		torrents = append(torrents, result)
 	}
 
-	runtime.LogInfo(a.ctx, fmt.Sprintf("Returning %d torrents to frontend", len(torrents)))
-	runtime.LogDebug(a.ctx, "About to return from GetTorrents...")
 	return torrents
 }
 

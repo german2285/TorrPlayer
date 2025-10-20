@@ -100,17 +100,6 @@ import settingsIcon from './assets/icons/settings.svg'
 import backgroundMusicUrl from './assets/audio/background-music.mp3'
 import { loadSavedTheme } from './utils/themeUtils'
 
-interface TorrentMetadataLoadedEvent {
-  hash: string
-  title: string
-  peers: number
-  seeders: number
-  fileCount: number
-  totalSize: number
-  sizeStr: string
-  loaded: boolean
-}
-
 const torrents: Ref<Torrent[]> = ref([])
 const searchQuery: Ref<string> = ref('')
 const loading: Ref<boolean> = ref(true)
@@ -188,31 +177,6 @@ const onTorrentAdded = async (): Promise<void> => {
   await loadTorrents()
 }
 
-// Handle metadata loaded event from backend
-const onMetadataLoaded = (event: TorrentMetadataLoadedEvent) => {
-  console.log('Metadata loaded event:', event)
-
-  // Find and update the torrent in the list
-  const torrentIndex = torrents.value.findIndex(t => t.hash === event.hash)
-  if (torrentIndex !== -1) {
-    // Update torrent with new metadata
-    torrents.value[torrentIndex] = {
-      ...torrents.value[torrentIndex],
-      fileCount: event.fileCount,
-      size: event.totalSize,
-      sizeStr: event.sizeStr,
-      peers: event.peers,
-      seeders: event.seeders,
-      loadingMeta: false // Metadata loaded, stop showing loading indicators
-    }
-    console.log('Updated torrent with metadata:', torrents.value[torrentIndex])
-  } else {
-    // Torrent not in list yet, reload the list
-    console.log('Torrent not found in list, reloading...')
-    loadTorrents()
-  }
-}
-
 // Handle video playback starting - pause background music and cleanup
 const onVideoPlaybackStarting = () => {
   console.log('Video playback starting - cleaning up resources')
@@ -223,17 +187,8 @@ const onVideoPlaybackStarting = () => {
     bgAudio.value.src = '' // Release audio resource
   }
 
-  // Stop refresh interval to free resources
-  if (refreshInterval) {
-    clearInterval(refreshInterval)
-    refreshInterval = null
-  }
-
   console.log('Resources cleaned up, ready for window reload after playback')
 }
-
-// Auto-refresh torrents every 5 seconds
-let refreshInterval: number | null = null
 
 // Watch volume changes
 watch(bgVolume, (newVolume) => {
@@ -254,20 +209,8 @@ onMounted(async () => {
 
   await loadTorrents()
 
-  // Listen to metadata loaded events
-  EventsOn('torrent:metadataLoaded', onMetadataLoaded)
-
   // Listen to video playback starting event (page will reload after playback)
   EventsOn('video:playbackStarting', onVideoPlaybackStarting)
-
-  // Auto-refresh every 5 seconds (for peers/seeders updates)
-  refreshInterval = window.setInterval(async () => {
-    try {
-      torrents.value = await GetTorrents()
-    } catch (error) {
-      console.error('Failed to refresh torrents:', error)
-    }
-  }, 5000)
 
   // Load background music volume from localStorage (0-100 range)
   const savedBgVolume = localStorage.getItem('bgMusicVolume')
@@ -293,12 +236,7 @@ onMounted(async () => {
 
 // Cleanup on unmount
 onUnmounted(() => {
-  if (refreshInterval) {
-    clearInterval(refreshInterval)
-  }
-
   // Unsubscribe from events
-  EventsOff('torrent:metadataLoaded')
   EventsOff('video:playbackStarting')
 })
 </script>
