@@ -26,22 +26,12 @@
           <span class="category-chip">{{ formatCategory(torrent.category) }}</span>
         </div>
 
-        <!-- Кнопка Play или Loading Indicator -->
+        <!-- Кнопка Play -->
         <div class="play-section">
-          <div v-if="isMetadataLoading" class="play-loading">
-            <CircularProgressIndicator
-              :size="48"
-              :thickness="4"
-              :indeterminate="true"
-              variant="retreat"
-            />
-            <span class="loading-text">Подключение...</span>
-          </div>
-          <div v-else class="action-buttons">
+          <div class="action-buttons">
             <button
               class="play-button"
               @click.stop="handlePlayClick"
-              :disabled="!hasMetadata"
             >
               <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z"/>
@@ -59,94 +49,19 @@
             </button>
           </div>
         </div>
-
-        <!-- Метаданные с Progress Indicators -->
-        <div class="metadata-section">
-          <!-- Пиры -->
-          <div class="metadata-item">
-            <svg class="metadata-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-            </svg>
-            <div class="metadata-value">
-              <div v-if="isMetadataLoading" class="metadata-loading">
-                <LinearProgressIndicator
-                  :indeterminate="true"
-                  :thickness="3"
-                  animation-type="disjoint"
-                />
-                <span class="metadata-loading-text">загрузка...</span>
-              </div>
-              <span v-else class="metadata-text">
-                {{ formatPeers(metadata.peers) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Количество файлов -->
-          <div class="metadata-item">
-            <svg class="metadata-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-1 12H5c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v8c0 .55-.45 1-1 1z"/>
-            </svg>
-            <div class="metadata-value">
-              <div v-if="isMetadataLoading" class="metadata-loading">
-                <LinearProgressIndicator
-                  :indeterminate="true"
-                  :thickness="3"
-                  animation-type="disjoint"
-                />
-                <span class="metadata-loading-text">загрузка...</span>
-              </div>
-              <span v-else class="metadata-text">
-                {{ formatFileCount(metadata.fileCount) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Размер -->
-          <div class="metadata-item">
-            <svg class="metadata-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-            </svg>
-            <div class="metadata-value">
-              <div v-if="isMetadataLoading" class="metadata-loading">
-                <LinearProgressIndicator
-                  :indeterminate="true"
-                  :thickness="3"
-                  animation-type="disjoint"
-                />
-                <span class="metadata-loading-text">загрузка...</span>
-              </div>
-              <span v-else class="metadata-text">
-                {{ formatSize(metadata.totalSize) }}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import CircularProgressIndicator from './CircularProgressIndicator.vue'
-import LinearProgressIndicator from './LinearProgressIndicator.vue'
 import type { Torrent } from '../types'
-
-interface TorrentMetadata {
-  peers: number
-  fileCount: number
-  totalSize: number
-}
 
 interface Props {
   torrent: Torrent
-  initialLoading?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  initialLoading: true
-})
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'play', torrent: Torrent): void
@@ -154,19 +69,7 @@ const emit = defineEmits<{
   (e: 'remove', torrent: Torrent): void
 }>()
 
-// Состояние загрузки метаданных - берем из пропса torrent
-const isMetadataLoading = computed(() => props.torrent.loadingMeta ?? true)
-
-// Метаданные берем напрямую из торрента
-const metadata = computed(() => ({
-  peers: props.torrent.peers ?? 0,
-  fileCount: props.torrent.fileCount ?? 0,
-  totalSize: props.torrent.size ?? 0
-}))
-
-const hasMetadata = computed(() => metadata.value.fileCount > 0)
-
-// Форматирование данных
+// Форматирование категории
 const formatCategory = (category: string): string => {
   const categories: Record<string, string> = {
     'movie': 'Фильм',
@@ -176,28 +79,6 @@ const formatCategory = (category: string): string => {
     'anime': 'Аниме'
   }
   return categories[category] || category
-}
-
-const formatPeers = (count: number): string => {
-  if (count === 0) return 'Нет пиров'
-  if (count === 1) return '1 пир'
-  if (count < 5) return `${count} пира`
-  return `${count} пиров`
-}
-
-const formatFileCount = (count: number): string => {
-  if (count === 0) return 'Нет файлов'
-  if (count === 1) return '1 файл'
-  if (count < 5) return `${count} файла`
-  return `${count} файлов`
-}
-
-const formatSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
 }
 
 const onImageError = (e: Event): void => {
@@ -210,9 +91,7 @@ const handleCardClick = (): void => {
 }
 
 const handlePlayClick = (): void => {
-  if (hasMetadata.value) {
-    emit('play', props.torrent)
-  }
+  emit('play', props.torrent)
 }
 
 const handleRemoveClick = (): void => {
@@ -352,18 +231,6 @@ const handleRemoveClick = (): void => {
   margin-top: auto;
 }
 
-.play-loading {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.loading-text {
-  font-size: 14px;
-  color: var(--md-sys-color-on-surface-variant, #49454F);
-  font-weight: 500;
-}
-
 .action-buttons {
   display: flex;
   align-items: center;
@@ -439,49 +306,6 @@ const handleRemoveClick = (): void => {
 .remove-icon {
   width: 24px;
   height: 24px;
-}
-
-/* Метаданные */
-.metadata-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.metadata-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.metadata-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--md-sys-color-primary, #6750A4);
-  flex-shrink: 0;
-}
-
-.metadata-value {
-  flex: 1;
-  min-width: 0;
-}
-
-.metadata-loading {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.metadata-loading-text {
-  font-size: 12px;
-  color: var(--md-sys-color-on-surface-variant, #49454F);
-  font-style: italic;
-}
-
-.metadata-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--md-sys-color-on-surface, #1C1B1F);
 }
 
 /* Адаптивность */
