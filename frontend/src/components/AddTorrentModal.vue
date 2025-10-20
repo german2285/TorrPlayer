@@ -17,12 +17,7 @@
         @drop.prevent="handleDrop"
       >
         <div class="drop-zone-content">
-          <svg class="drop-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M20 21H4C3.44772 21 3 20.5523 3 20V10C3 9.44772 3.44772 9 4 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M16 9H20C20.5523 9 21 9.44772 21 10V20C21 20.5523 20.5523 21 20 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <img :src="downloadIcon" class="drop-icon" alt="Download" />
           <p class="drop-text">Перетащите .torrent файл сюда</p>
           <p class="drop-subtext">или нажмите для выбора файла</p>
           <input
@@ -56,6 +51,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AddTorrent } from '../../wailsjs/go/app/App'
+import downloadIcon from '../assets/icons/download.svg'
 
 const input = ref('')
 const loading = ref(false)
