@@ -6,19 +6,21 @@
       <div v-if="loading" class="loading">Загрузка списка файлов...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
       <div v-else class="files-list">
-        <div
-          v-for="file in files"
-          :key="file.index"
-          class="file-item"
-          @click="playFile(file.index)"
-        >
-          <div class="file-icon">📄</div>
-          <div class="file-info">
-            <div class="file-name">{{ file.path }}</div>
-            <div class="file-size">{{ file.sizeStr }}</div>
+        <template v-for="(file, index) in files" :key="file.index">
+          <div
+            class="file-item"
+            @click="playFile(file.index)"
+          >
+            <div class="file-icon">📄</div>
+            <div class="file-info">
+              <div class="file-name">{{ file.path }}</div>
+              <div class="file-size">{{ file.sizeStr }}</div>
+            </div>
+            <button class="btn-play-file">▶</button>
           </div>
-          <button class="btn-play-file">▶</button>
-        </div>
+          <!-- Material Design Divider -->
+          <div v-if="index < files.length - 1" class="divider"></div>
+        </template>
       </div>
 
       <div class="modal-actions">
@@ -120,34 +122,54 @@ h2 {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   margin-bottom: 24px;
 }
 
 .file-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px;
-  background: var(--md-sys-color-surface-container-high);
-  border-radius: 12px;
+  padding: 16px 0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.file-item:hover {
-  background: var(--md-sys-color-surface-container-highest);
-  transform: translateX(4px);
+/* Material Design State Layer */
+.file-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--md-sys-color-on-surface);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+.file-item:hover::before {
+  opacity: 0.08;
+}
+
+/* Material Design Divider (Inset) */
+.divider {
+  height: 1px;
+  background: var(--md-sys-color-outline-variant);
+  margin: 0 16px;
 }
 
 .file-icon {
   font-size: 32px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .file-info {
   flex: 1;
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .file-name {
@@ -180,6 +202,7 @@ h2 {
   box-shadow: var(--md-sys-elevation-level2);
   transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
   flex-shrink: 0;
+  z-index: 1;
 }
 
 .btn-play-file::before {
