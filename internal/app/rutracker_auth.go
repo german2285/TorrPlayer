@@ -36,11 +36,14 @@ type RegistrationData struct {
 
 // GetRegistrationCaptcha fetches CAPTCHA image and data for registration
 func (a *App) GetRegistrationCaptcha() (*CaptchaData, error) {
-	runtime.LogInfo(a.ctx, "Fetching registration CAPTCHA")
+	runtime.LogInfo(a.ctx, "========== GetRegistrationCaptcha START ==========")
+	runtime.LogInfo(a.ctx, "Fetching registration CAPTCHA from RuTracker")
 
 	// Create HTTP client
-	client, err := NewRutrackerClient()
+	runtime.LogInfo(a.ctx, "Creating HTTP client...")
+	client, err := NewRutrackerClient(a.ctx)
 	if err != nil {
+		runtime.LogError(a.ctx, fmt.Sprintf("Failed to create HTTP client: %v", err))
 		return nil, fmt.Errorf("failed to create HTTP client: %v", err)
 	}
 
@@ -141,7 +144,7 @@ func (a *App) RegisterOnRuTracker(data *RegistrationData) error {
 	}
 
 	// Create HTTP client
-	client, err := NewRutrackerClient()
+	client, err := NewRutrackerClient(a.ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create HTTP client: %v", err)
 	}
@@ -202,7 +205,7 @@ func (a *App) LoginToRuTracker(data *LoginData) error {
 	}
 
 	// Create HTTP client
-	client, err := NewRutrackerClient()
+	client, err := NewRutrackerClient(a.ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create HTTP client: %v", err)
 	}
@@ -266,7 +269,7 @@ func (a *App) CheckAuthStatus() (bool, error) {
 	}
 
 	// Create HTTP client and load cookies
-	client, err := NewRutrackerClient()
+	client, err := NewRutrackerClient(a.ctx)
 	if err != nil {
 		return false, fmt.Errorf("failed to create HTTP client: %v", err)
 	}
