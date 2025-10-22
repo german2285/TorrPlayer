@@ -16,7 +16,21 @@
               <div class="file-name">{{ file.path }}</div>
               <div class="file-size">{{ file.sizeStr }}</div>
             </div>
-            <button class="btn-play-file">▶</button>
+            <!-- Кнопка Play с Loading Indicator внутри -->
+            <button class="btn-play-file" :aria-label="playingFileIndex === file.index ? 'Loading...' : 'Play file'">
+              <!-- Loading Indicator (Contained) при воспроизведении -->
+              <LoadingIndicatorAdvanced
+                v-if="playingFileIndex === file.index"
+                animation="morph"
+                size="extra-small"
+                color-scheme="on-primary"
+                :contained="true"
+                :speed="1.2"
+                aria-hidden="true"
+              />
+              <!-- Иконка Play когда не воспроизводится -->
+              <img v-else :src="playIcon" class="play-icon" alt="Play" />
+            </button>
           </div>
           <!-- Material Design Divider -->
           <div v-if="index < files.length - 1" class="divider"></div>
@@ -34,6 +48,8 @@
 import { ref, onMounted } from 'vue'
 import type { Torrent, TorrentFile } from '../types'
 import { GetTorrentFiles, PlayTorrentFile } from '../../wailsjs/go/app/App'
+import playIcon from '../assets/icons/play_arrow.svg'
+import LoadingIndicatorAdvanced from './LoadingIndicatorAdvanced.vue'
 
 const props = defineProps<{
   torrent: Torrent
@@ -47,6 +63,7 @@ const emit = defineEmits<{
 const files = ref<TorrentFile[]>([])
 const loading = ref(true)
 const error = ref('')
+const playingFileIndex = ref<number | null>(null)
 
 const loadFiles = async () => {
   try {
@@ -62,9 +79,14 @@ const loadFiles = async () => {
 
 const playFile = async (fileIndex: number) => {
   try {
+    playingFileIndex.value = fileIndex
     await PlayTorrentFile(props.torrent.hash, fileIndex)
     emit('play', fileIndex)
+    // Небольшая задержка перед закрытием для показа завершения
+    await new Promise(resolve => setTimeout(resolve, 300))
+    emit('close')
   } catch (err) {
+    playingFileIndex.value = null
     alert('Ошибка воспроизведения: ' + (err instanceof Error ? err.message : String(err)))
   }
 }
@@ -123,6 +145,7 @@ h2 {
   display: flex;
   flex-direction: column;
   margin-bottom: 24px;
+  padding-right: 16px; /* Отступ для scrollbar */
 }
 
 .file-item {
@@ -154,8 +177,10 @@ h2 {
 /* Material Design Divider (Inset) */
 .divider {
   height: 1px;
-  background: var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-outline-variant, rgba(0, 0, 0, 0.12));
   margin: 0 16px;
+  flex-shrink: 0;
+  opacity: 1;
 }
 
 .file-icon {
@@ -185,50 +210,66 @@ h2 {
   opacity: 0.7;
 }
 
-/* === M3 Expressive Button Styles === */
+/* === M3 Expressive Icon Button Styles === */
 
-/* M3 Filled Button (Play file) */
+/* M3 Filled Icon Button (Small, Round) - Play file */
 .btn-play-file {
   position: relative;
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
   border: none;
-  border-radius: var(--md-sys-shape-corner-full);
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 50%; /* Round shape */
   cursor: pointer;
   overflow: hidden;
-  box-shadow: var(--md-sys-elevation-level2);
-  transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+  box-shadow: var(--md-sys-elevation-level1);
+  transition: box-shadow var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial),
+              transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
   flex-shrink: 0;
   z-index: 1;
 }
 
+/* M3 State Layer */
 .btn-play-file::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: currentColor;
+  background: var(--md-sys-color-on-primary);
   opacity: 0;
+  border-radius: 50%;
   transition: opacity 0.15s ease;
   pointer-events: none;
 }
 
 .btn-play-file:hover {
-  box-shadow: var(--md-sys-elevation-level3);
+  box-shadow: var(--md-sys-elevation-level2);
 }
 
 .btn-play-file:hover::before {
-  opacity: var(--md-sys-state-hover-opacity);
+  opacity: var(--md-sys-state-hover-opacity); /* 0.08 */
 }
 
 .btn-play-file:active {
-  box-shadow: var(--md-sys-elevation-level1);
+  box-shadow: var(--md-sys-elevation-level0);
+  transform: scale(0.95); /* M3 Expressive press effect */
 }
 
 .btn-play-file:active::before {
-  opacity: var(--md-sys-state-pressed-opacity);
+  opacity: var(--md-sys-state-pressed-opacity); /* 0.12 */
+}
+
+/* Play icon */
+.play-icon {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 1;
+  filter: brightness(0) invert(1); /* Make icon white for on-primary color */
+  pointer-events: none;
 }
 
 .modal-actions {
