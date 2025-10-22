@@ -10,6 +10,7 @@ replace (
 )
 
 require (
+	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/anacrolix/dms v1.7.1
 	github.com/anacrolix/missinggo/v2 v2.8.0
 	github.com/anacrolix/publicip v0.3.1
@@ -20,6 +21,7 @@ require (
 	go.etcd.io/bbolt v1.4.0
 	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476
 	golang.org/x/image v0.28.0
+	golang.org/x/text v0.30.0
 	golang.org/x/time v0.12.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
 )
@@ -39,6 +41,7 @@ require (
 	github.com/anacrolix/sync v0.5.4 // indirect
 	github.com/anacrolix/upnp v0.1.4 // indirect
 	github.com/anacrolix/utp v0.2.0 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/benbjohnson/immutable v0.4.3 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/bits-and-blooms/bitset v1.22.0 // indirect
@@ -74,7 +77,6 @@ require (
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
 )

@@ -79,3 +79,35 @@ export interface Movie {
   description: string
   ageRating: string
 }
+
+// RuTracker types
+export interface RutrackerTorrent {
+  topicId: string
+  title: string
+  category: string
+  size: string
+  seeds: number
+  leeches: number
+  author: string
+  date: string
+}
+
+export interface CaptchaData {
+  imageBase64: string
+  sid: string
+  codeField: string
+}
+
+export interface LoginData {
+  username: string
+  password: string
+}
+
+export interface RegistrationData {
+  username: string
+  password: string
+  email: string
+  captchaCode: string
+  captchaSid: string
+  codeField: string
+}

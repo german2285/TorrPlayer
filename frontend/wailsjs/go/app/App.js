@@ -6,6 +6,26 @@ export function AddTorrent(arg1) {
   return window['go']['app']['App']['AddTorrent'](arg1);
 }
 
+export function CheckAuthStatus() {
+  return window['go']['app']['App']['CheckAuthStatus']();
+}
+
+export function DeleteCookiesFile() {
+  return window['go']['app']['App']['DeleteCookiesFile']();
+}
+
+export function GetCookiesPath() {
+  return window['go']['app']['App']['GetCookiesPath']();
+}
+
+export function GetRegistrationCaptcha() {
+  return window['go']['app']['App']['GetRegistrationCaptcha']();
+}
+
+export function GetRutrackerMagnetLink(arg1) {
+  return window['go']['app']['App']['GetRutrackerMagnetLink'](arg1);
+}
+
 export function GetSettings() {
   return window['go']['app']['App']['GetSettings']();
 }
@@ -22,12 +42,36 @@ export function GetTorrents() {
   return window['go']['app']['App']['GetTorrents']();
 }
 
+export function LoadCookiesFromFile() {
+  return window['go']['app']['App']['LoadCookiesFromFile']();
+}
+
+export function LoginToRuTracker(arg1) {
+  return window['go']['app']['App']['LoginToRuTracker'](arg1);
+}
+
+export function LogoutFromRuTracker() {
+  return window['go']['app']['App']['LogoutFromRuTracker']();
+}
+
 export function PlayTorrentFile(arg1, arg2) {
   return window['go']['app']['App']['PlayTorrentFile'](arg1, arg2);
 }
 
+export function RegisterOnRuTracker(arg1) {
+  return window['go']['app']['App']['RegisterOnRuTracker'](arg1);
+}
+
 export function RemoveTorrent(arg1) {
   return window['go']['app']['App']['RemoveTorrent'](arg1);
+}
+
+export function SaveCookiesToFile(arg1) {
+  return window['go']['app']['App']['SaveCookiesToFile'](arg1);
+}
+
+export function SearchRuTracker(arg1) {
+  return window['go']['app']['App']['SearchRuTracker'](arg1);
 }
 
 export function SetSettings(arg1) {

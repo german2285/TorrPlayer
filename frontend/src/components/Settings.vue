@@ -446,6 +446,125 @@
           </div>
         </div>
 
+        <!-- RuTracker -->
+        <div class="settings-section">
+          <h3 class="section-title">RuTracker</h3>
+          <div class="settings-list">
+
+            <!-- Auth Status -->
+            <div class="setting-item-full">
+              <div class="setting-info">
+                <div class="setting-label">Статус авторизации</div>
+                <div class="setting-description" :style="{ color: rutrackerAuth.isAuthenticated ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-error)' }">
+                  {{ rutrackerAuth.isAuthenticated ? '✓ Авторизован' : '✗ Не авторизован' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Auth Form (только если не авторизован) -->
+            <div v-if="!rutrackerAuth.isAuthenticated" class="setting-item-full">
+
+              <!-- Auth Mode Toggle -->
+              <div class="auth-mode-toggle">
+                <button
+                  class="auth-mode-btn"
+                  :class="{ active: rutrackerAuth.mode === 'login' }"
+                  @click="rutrackerAuth.mode = 'login'"
+                >
+                  Вход
+                </button>
+                <button
+                  class="auth-mode-btn"
+                  :class="{ active: rutrackerAuth.mode === 'register' }"
+                  @click="rutrackerAuth.mode = 'register'; loadCaptcha()"
+                >
+                  Регистрация
+                </button>
+              </div>
+
+              <!-- Login Form -->
+              <div v-if="rutrackerAuth.mode === 'login'" class="auth-form">
+                <input
+                  type="text"
+                  class="text-input"
+                  placeholder="Имя пользователя"
+                  v-model="rutrackerAuth.loginData.username"
+                >
+                <input
+                  type="password"
+                  class="text-input"
+                  placeholder="Пароль"
+                  v-model="rutrackerAuth.loginData.password"
+                >
+                <button class="auth-submit-btn" @click="handleLogin" :disabled="rutrackerAuth.loading">
+                  {{ rutrackerAuth.loading ? 'Вход...' : 'Войти' }}
+                </button>
+              </div>
+
+              <!-- Registration Form -->
+              <div v-if="rutrackerAuth.mode === 'register'" class="auth-form">
+                <input
+                  type="text"
+                  class="text-input"
+                  placeholder="Имя пользователя"
+                  v-model="rutrackerAuth.registerData.username"
+                >
+                <input
+                  type="password"
+                  class="text-input"
+                  placeholder="Пароль (макс. 20 символов)"
+                  maxlength="20"
+                  v-model="rutrackerAuth.registerData.password"
+                >
+                <input
+                  type="email"
+                  class="text-input"
+                  placeholder="Email"
+                  v-model="rutrackerAuth.registerData.email"
+                >
+
+                <!-- CAPTCHA -->
+                <div v-if="rutrackerAuth.captchaData" class="captcha-container">
+                  <img
+                    :src="rutrackerAuth.captchaData.imageBase64"
+                    alt="CAPTCHA"
+                    class="captcha-image"
+                  >
+                  <button class="captcha-reload-btn" @click="loadCaptcha" title="Обновить CAPTCHA">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <input
+                  type="text"
+                  class="text-input"
+                  placeholder="Введите код с картинки"
+                  v-model="rutrackerAuth.registerData.captchaCode"
+                >
+
+                <button class="auth-submit-btn" @click="handleRegister" :disabled="rutrackerAuth.loading || !rutrackerAuth.captchaData">
+                  {{ rutrackerAuth.loading ? 'Регистрация...' : 'Зарегистрироваться' }}
+                </button>
+              </div>
+
+              <!-- Error Message -->
+              <div v-if="rutrackerAuth.error" class="auth-error">
+                {{ rutrackerAuth.error }}
+              </div>
+            </div>
+
+            <!-- Logout Button (только если авторизован) -->
+            <div v-if="rutrackerAuth.isAuthenticated" class="setting-item-full">
+              <button class="auth-logout-btn" @click="handleLogout">
+                Выйти
+              </button>
+            </div>
+
+          </div>
+        </div>
+
         <!-- О программе -->
         <div class="settings-section">
           <h3 class="section-title">О программе</h3>
@@ -538,9 +657,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import type { Ref } from 'vue'
-import { GetSettings, SetSettings } from '../../wailsjs/go/app/App'
+import { GetSettings, SetSettings, CheckAuthStatus, LoginToRuTracker, RegisterOnRuTracker, GetRegistrationCaptcha, LogoutFromRuTracker } from '../../wailsjs/go/app/App'
 import type { app } from '../../wailsjs/go/models'
 import { applyThemeColor, loadSavedTheme } from '../utils/themeUtils'
+import type { LoginData, RegistrationData, CaptchaData } from '../types'
 
 const emit = defineEmits<{
   (e: 'close'): void
@@ -658,6 +778,27 @@ const showAdvancedSettings = ref(false)
 // Retrackers help dialog state
 const showRetrackersHelpDialog = ref(false)
 
+// RuTracker authentication state
+const rutrackerAuth = ref({
+  isAuthenticated: false,
+  mode: 'login' as 'login' | 'register',
+  loading: false,
+  error: '',
+  loginData: {
+    username: '',
+    password: ''
+  } as LoginData,
+  registerData: {
+    username: '',
+    password: '',
+    email: '',
+    captchaCode: '',
+    captchaSid: '',
+    codeField: ''
+  } as RegistrationData,
+  captchaData: null as CaptchaData | null
+})
+
 // Watch bgMusicVolume changes and dispatch event
 watch(bgMusicVolume, (newVolume) => {
   torrentSettings.value.bgMusicVolume = newVolume
@@ -719,6 +860,15 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load torrent settings:', error)
   }
+
+  // Check RuTracker auth status
+  try {
+    const isAuth = await CheckAuthStatus()
+    rutrackerAuth.value.isAuthenticated = isAuth
+  } catch (error) {
+    console.error('Failed to check RuTracker auth status:', error)
+    rutrackerAuth.value.isAuthenticated = false
+  }
 })
 
 const onClose = async (): Promise<void> => {
@@ -776,6 +926,109 @@ const applyThemeColorWrapper = (color: string): void => {
 // Выбрать предустановленный цвет
 const selectColorPreset = (color: string): void => {
   applyThemeColorWrapper(color)
+}
+
+// RuTracker Methods
+
+// Load CAPTCHA for registration
+const loadCaptcha = async (): Promise<void> => {
+  try {
+    rutrackerAuth.value.error = ''
+    const captcha = await GetRegistrationCaptcha()
+    if (captcha) {
+      rutrackerAuth.value.captchaData = captcha
+      rutrackerAuth.value.registerData.captchaSid = captcha.sid
+      rutrackerAuth.value.registerData.codeField = captcha.codeField
+      rutrackerAuth.value.registerData.captchaCode = '' // Clear previous code
+    }
+  } catch (error) {
+    console.error('Failed to load CAPTCHA:', error)
+    rutrackerAuth.value.error = 'Не удалось загрузить CAPTCHA. Попробуйте еще раз.'
+  }
+}
+
+// Handle login
+const handleLogin = async (): Promise<void> => {
+  try {
+    rutrackerAuth.value.loading = true
+    rutrackerAuth.value.error = ''
+
+    if (!rutrackerAuth.value.loginData.username || !rutrackerAuth.value.loginData.password) {
+      rutrackerAuth.value.error = 'Заполните все поля'
+      return
+    }
+
+    await LoginToRuTracker(rutrackerAuth.value.loginData)
+
+    // Check auth status after login
+    const isAuth = await CheckAuthStatus()
+    rutrackerAuth.value.isAuthenticated = isAuth
+
+    if (isAuth) {
+      // Clear form
+      rutrackerAuth.value.loginData.username = ''
+      rutrackerAuth.value.loginData.password = ''
+    }
+  } catch (error: any) {
+    console.error('Login failed:', error)
+    rutrackerAuth.value.error = error?.message || 'Ошибка входа. Проверьте логин и пароль.'
+  } finally {
+    rutrackerAuth.value.loading = false
+  }
+}
+
+// Handle registration
+const handleRegister = async (): Promise<void> => {
+  try {
+    rutrackerAuth.value.loading = true
+    rutrackerAuth.value.error = ''
+
+    const data = rutrackerAuth.value.registerData
+
+    if (!data.username || !data.password || !data.email || !data.captchaCode) {
+      rutrackerAuth.value.error = 'Заполните все поля'
+      return
+    }
+
+    if (data.password.length > 20) {
+      rutrackerAuth.value.error = 'Пароль должен быть не более 20 символов'
+      return
+    }
+
+    await RegisterOnRuTracker(data)
+
+    // Check auth status after registration
+    const isAuth = await CheckAuthStatus()
+    rutrackerAuth.value.isAuthenticated = isAuth
+
+    if (isAuth) {
+      // Clear form
+      rutrackerAuth.value.registerData.username = ''
+      rutrackerAuth.value.registerData.password = ''
+      rutrackerAuth.value.registerData.email = ''
+      rutrackerAuth.value.registerData.captchaCode = ''
+      rutrackerAuth.value.captchaData = null
+    }
+  } catch (error: any) {
+    console.error('Registration failed:', error)
+    rutrackerAuth.value.error = error?.message || 'Ошибка регистрации. Попробуйте еще раз.'
+    // Reload CAPTCHA on error
+    await loadCaptcha()
+  } finally {
+    rutrackerAuth.value.loading = false
+  }
+}
+
+// Handle logout
+const handleLogout = async (): Promise<void> => {
+  try {
+    await LogoutFromRuTracker()
+    rutrackerAuth.value.isAuthenticated = false
+    rutrackerAuth.value.error = ''
+  } catch (error: any) {
+    console.error('Logout failed:', error)
+    rutrackerAuth.value.error = error?.message || 'Ошибка выхода'
+  }
 }
 </script>
 
@@ -1726,6 +1979,189 @@ const selectColorPreset = (color: string): void => {
 }
 
 .dialog-button:active {
+  transform: scale(0.98);
+}
+
+/* RuTracker Auth Styles */
+
+/* Auth Mode Toggle */
+.auth-mode-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: var(--md-sys-shape-corner-full);
+  margin-bottom: 16px;
+}
+
+.auth-mode-btn {
+  flex: 1;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    color var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+}
+
+.auth-mode-btn:hover {
+  background: var(--md-sys-color-surface-container);
+}
+
+.auth-mode-btn.active {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.auth-mode-btn:active {
+  transform: scale(0.98);
+}
+
+/* Auth Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Auth Submit Button */
+.auth-submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-medium);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.auth-submit-btn:hover:not(:disabled) {
+  box-shadow: var(--md-sys-elevation-level2);
+  transform: scale(1.02);
+}
+
+.auth-submit-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* CAPTCHA Container */
+.captcha-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--md-sys-color-surface-container);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border: 2px solid var(--md-sys-color-outline-variant);
+}
+
+.captcha-image {
+  flex: 1;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--md-sys-shape-corner-small);
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.captcha-reload-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.captcha-reload-btn:hover {
+  background: var(--md-sys-color-primary-container);
+  transform: scale(1.1) rotate(180deg);
+}
+
+.captcha-reload-btn:active {
+  transform: scale(0.95) rotate(180deg);
+}
+
+/* Auth Error */
+.auth-error {
+  padding: 12px 16px;
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border-left: 3px solid var(--md-sys-color-error);
+  font-family: var(--md-sys-typescale-body-medium-font);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Auth Logout Button */
+.auth-logout-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--md-sys-color-error);
+  color: var(--md-sys-color-on-error);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-medium);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    box-shadow var(--md-sys-motion-spring-expressive-fast-effects-duration) var(--md-sys-motion-spring-expressive-fast-effects),
+    transform var(--md-sys-motion-spring-expressive-fast-spatial-duration) var(--md-sys-motion-spring-expressive-fast-spatial);
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.auth-logout-btn:hover {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  box-shadow: var(--md-sys-elevation-level2);
+  transform: scale(1.02);
+}
+
+.auth-logout-btn:active {
   transform: scale(0.98);
 }
 </style>

@@ -8,7 +8,7 @@
           <input
             type="text"
             class="search-input"
-            placeholder="Поиск торрентов..."
+            placeholder="Поиск торрентов... (Начните с '!' для поиска по RuTracker)"
             v-model="searchQuery"
           >
           <div class="action-icons">
@@ -40,19 +40,22 @@
       </TransitionGroup>
 
       <!-- Empty State -->
-      <div v-if="filteredTorrents.length === 0 && !loading" class="empty-state">
+      <div v-if="filteredTorrents.length === 0 && !loading && !rutrackerLoading" class="empty-state">
         <svg width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
           <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
           <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
         </svg>
-        <p>Нет торрентов</p>
-        <p class="empty-hint">Нажмите "+" чтобы добавить торрент</p>
+        <p v-if="isRutrackerSearch">Ничего не найдено на RuTracker</p>
+        <p v-else>Нет торрентов</p>
+        <p class="empty-hint" v-if="!isRutrackerSearch">Нажмите "+" чтобы добавить торрент</p>
+        <p class="empty-hint" v-else>Попробуйте изменить запрос</p>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="loading-state">
+      <div v-if="loading || rutrackerLoading" class="loading-state">
         <div class="spinner"></div>
-        <p>Загрузка...</p>
+        <p v-if="rutrackerLoading">Поиск по RuTracker...</p>
+        <p v-else>Загрузка...</p>
       </div>
     </div>
 
@@ -91,9 +94,9 @@ import RippleEffect from './components/RippleEffect.vue'
 import AddTorrentModal from './components/AddTorrentModal.vue'
 import FileListModal from './components/FileListModal.vue'
 import Settings from './components/Settings.vue'
-import { GetTorrents, RemoveTorrent } from '../wailsjs/go/app/App'
+import { GetTorrents, RemoveTorrent, SearchRuTracker, GetRutrackerMagnetLink, AddTorrent } from '../wailsjs/go/app/App'
 import { EventsOn, EventsOff } from '../wailsjs/runtime/runtime'
-import type { Torrent } from './types'
+import type { Torrent, RutrackerTorrent } from './types'
 import searchIcon from './assets/icons/search.svg'
 import addIcon from './assets/icons/add.svg'
 import settingsIcon from './assets/icons/settings.svg'
@@ -108,12 +111,42 @@ const showFileList: Ref<boolean> = ref(false)
 const showSettings: Ref<boolean> = ref(false)
 const selectedTorrent: Ref<Torrent | null> = ref(null)
 
+// RuTracker search
+const rutrackerResults: Ref<RutrackerTorrent[]> = ref([])
+const isRutrackerSearch: Ref<boolean> = ref(false)
+const rutrackerLoading: Ref<boolean> = ref(false)
+
 // Background music
 const bgAudio: Ref<HTMLAudioElement | null> = ref(null)
 const bgVolume: Ref<number> = ref(0.3) // Default volume 30% (0-1 range for audio element)
 
-// Filter torrents by search query
+// Filter torrents by search query (or show RuTracker results)
 const filteredTorrents = computed(() => {
+  // If RuTracker search is active, convert RutrackerTorrent to Torrent format
+  if (isRutrackerSearch.value && rutrackerResults.value.length > 0) {
+    return rutrackerResults.value.map(rt => ({
+      hash: rt.topicId,
+      name: rt.title,
+      title: rt.title,
+      size: 0,
+      sizeStr: rt.size,
+      status: `Seeds: ${rt.seeds} | Leeches: ${rt.leeches}`,
+      progress: 0,
+      downSpeed: 0,
+      upSpeed: 0,
+      downSpeedStr: '',
+      upSpeedStr: '',
+      peers: rt.leeches,
+      seeders: rt.seeds,
+      category: rt.category,
+      poster: '',
+      timestamp: 0,
+      // Mark as RuTracker result for special handling
+      _isRutrackerResult: true
+    } as Torrent & { _isRutrackerResult?: boolean }))
+  }
+
+  // Local search
   if (!searchQuery.value.trim()) {
     return torrents.value
   }
@@ -136,9 +169,17 @@ const loadTorrents = async () => {
   }
 }
 
-// Handle torrent click - show file list
-const onTorrentClick = (torrent: Torrent): void => {
+// Handle torrent click - show file list or add RuTracker torrent
+const onTorrentClick = async (torrent: Torrent & { _isRutrackerResult?: boolean }): Promise<void> => {
   console.log('Torrent clicked:', torrent)
+
+  // If it's a RuTracker result, add it as torrent
+  if (torrent._isRutrackerResult) {
+    await handleRutrackerClick(torrent)
+    return
+  }
+
+  // Otherwise, show file list for local torrent
   selectedTorrent.value = torrent
   showFileList.value = true
 }
@@ -176,6 +217,75 @@ const onTorrentAdded = async (): Promise<void> => {
   showAddTorrent.value = false
   await loadTorrents()
 }
+
+// Search RuTracker
+const searchRuTracker = async (query: string): Promise<void> => {
+  try {
+    rutrackerLoading.value = true
+    const results = await SearchRuTracker(query)
+    rutrackerResults.value = results || []
+    isRutrackerSearch.value = true
+  } catch (error) {
+    console.error('RuTracker search failed:', error)
+    alert('Ошибка поиска по RuTracker: ' + error)
+    rutrackerResults.value = []
+    isRutrackerSearch.value = false
+  } finally {
+    rutrackerLoading.value = false
+  }
+}
+
+// Handle RuTracker torrent click
+const handleRutrackerClick = async (torrent: Torrent & { _isRutrackerResult?: boolean }): Promise<void> => {
+  if (!torrent._isRutrackerResult) {
+    return
+  }
+
+  try {
+    loading.value = true
+
+    // Get magnet link
+    const magnetLink = await GetRutrackerMagnetLink(torrent.hash)
+
+    if (!magnetLink) {
+      throw new Error('Не удалось получить magnet-ссылку')
+    }
+
+    // Add torrent
+    await AddTorrent(magnetLink)
+
+    // Reload torrents list
+    await loadTorrents()
+
+    // Clear search to show newly added torrent
+    searchQuery.value = ''
+    rutrackerResults.value = []
+    isRutrackerSearch.value = false
+
+    alert('Торрент успешно добавлен!')
+  } catch (error) {
+    console.error('Failed to add RuTracker torrent:', error)
+    alert('Ошибка добавления торрента: ' + error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Watch search query for RuTracker search
+watch(searchQuery, async (newQuery) => {
+  if (newQuery.startsWith('!')) {
+    const query = newQuery.substring(1).trim()
+    if (query.length >= 2) {
+      await searchRuTracker(query)
+    } else {
+      rutrackerResults.value = []
+      isRutrackerSearch.value = false
+    }
+  } else {
+    rutrackerResults.value = []
+    isRutrackerSearch.value = false
+  }
+})
 
 // Handle video playback starting - pause background music and cleanup
 const onVideoPlaybackStarting = () => {
